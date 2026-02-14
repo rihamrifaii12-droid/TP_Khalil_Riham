@@ -43,33 +43,47 @@ export default class Enemy {
         if (this.lives <= 0) return;
 
         ctx.save();
-        // Plankton body (Dark Green)
+        ctx.translate(this.x + this.size / 2, this.y + this.size / 2);
+        const time = Date.now() * 0.005;
+        const hover = Math.sin(time) * 5;
+        ctx.translate(0, hover);
+
+        // Body (Dark Green)
         ctx.fillStyle = this.isFrozen ? this.freezeColor : "#1D8348";
-        ctx.fillRect(this.x + 30, this.y + 20, 40, 60);
+        ctx.beginPath();
+        ctx.roundRect(-20, -30, 40, 60, 15);
+        ctx.fill();
 
         // Antennae
-        ctx.strokeStyle = "#1D8348";
+        ctx.strokeStyle = this.isFrozen ? this.freezeColor : "#1D8348";
         ctx.lineWidth = 3;
         ctx.beginPath();
-        ctx.moveTo(this.x + 40, this.y + 20);
-        ctx.lineTo(this.x + 20, this.y);
-        ctx.moveTo(this.x + 60, this.y + 20);
-        ctx.lineTo(this.x + 80, this.y);
+        ctx.moveTo(-10, -30); ctx.lineTo(-20, -50);
+        ctx.moveTo(10, -30); ctx.lineTo(20, -50);
         ctx.stroke();
 
         // Eye (White)
         ctx.fillStyle = "#fff";
         ctx.beginPath();
-        ctx.arc(this.x + 50, this.y + 40, 15, 0, Math.PI * 2);
+        ctx.arc(0, -10, 15, 0, Math.PI * 2);
         ctx.fill();
 
         // Pupil (Red/Yellow)
         ctx.fillStyle = "#f00";
         ctx.beginPath();
-        ctx.arc(this.x + 50, this.y + 40, 7, 0, Math.PI * 2);
+        const pupilX = Math.sin(time) * 3;
+        ctx.arc(pupilX, -10, 7, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = "#ff0";
-        ctx.fillRect(this.x + 48, this.y + 38, 4, 4);
+        ctx.fillRect(pupilX - 2, -12, 4, 4);
+
+        // Evil Mouth
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-10, 15);
+        ctx.quadraticCurveTo(0, 5, 10, 15);
+        ctx.stroke();
 
         ctx.restore();
     }

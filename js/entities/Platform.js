@@ -5,84 +5,77 @@ export default class Platform {
         this.w = w;
         this.h = h;
         this.color = color;
-        this.type = type % 2; // Alternates between 0 and 1
+        this.type = type; // 0: Sandy, 1: Rocky, 2: Industrial
     }
 
     draw(ctx) {
         ctx.save();
-
-        // Disable smoothing for sharp pixel edges
         ctx.imageSmoothingEnabled = false;
 
         if (this.type === 0) {
-            // --- REFINED STYLE 1: SANDY BIKINI BOTTOM ---
-            // Main Sand Block
-            ctx.fillStyle = "#F4D03F"; // Sandy Yellow
+            // --- STYLE 0: SANDY BIKINI BOTTOM ---
+            const grad = ctx.createLinearGradient(this.x, this.y, this.x, this.y + this.h);
+            grad.addColorStop(0, "#F7DC6F");
+            grad.addColorStop(1, "#F4D03F");
+            ctx.fillStyle = grad;
             ctx.fillRect(this.x, this.y, this.w, this.h);
 
-            // Top "Slab" 
-            ctx.fillStyle = "#F7DC6F"; // Lighter Sand
-            ctx.fillRect(this.x, this.y, this.w, 4);
-
-            // Bottom Shadow
-            ctx.fillStyle = "#D4AC0D";
-            ctx.fillRect(this.x, this.y + this.h - 4, this.w, 4);
-
-            // Grains/Shells
+            // Grains
             ctx.fillStyle = "#B7950B";
-            for (let i = 8; i < this.w; i += 24) {
-                if ((i / 24) % 2 === 0) ctx.fillRect(this.x + i, this.y + 15, 2, 2);
+            for (let i = 5; i < this.w; i += 20) {
+                ctx.fillRect(this.x + i + Math.sin(i) * 5, this.y + 10, 2, 2);
             }
 
-            // SEAWEED & ALGAE (Bikini Bottom Style)
-            ctx.fillStyle = "#2ECC71"; // Seaweed Green
-            for (let i = 10; i < this.w; i += 40) {
-                // Tall seaweed leaf
-                ctx.fillRect(this.x + i, this.y - 12, 4, 12);
-                ctx.fillRect(this.x + i - 4, this.y - 8, 4, 4);
-                // Tiny leaf
-                ctx.fillRect(this.x + i + 15, this.y - 4, 4, 4);
+            // Seaweed
+            ctx.fillStyle = "#2ECC71";
+            for (let i = 10; i < this.w; i += 50) {
+                ctx.fillRect(this.x + i, this.y - 15, 4, 15);
+                ctx.fillRect(this.x + i - 4, this.y - 10, 4, 4);
             }
-
-            // Small Pink Corals
-            ctx.fillStyle = "#EC407A";
-            for (let i = 30; i < this.w; i += 60) {
-                ctx.fillRect(this.x + i, this.y - 6, 6, 6);
-                ctx.fillRect(this.x + i + 4, this.y - 10, 4, 8);
-            }
-
-        } else {
-            // --- REFINED STYLE 2: ROCKY REEF ---
-            // Main Rock Block
-            ctx.fillStyle = "#8E44AD"; // Deep Purple
+        }
+        else if (this.type === 1) {
+            // --- STYLE 1: ROCKY REEF / KELP FOREST ---
+            const grad = ctx.createLinearGradient(this.x, this.y, this.x, this.y + this.h);
+            grad.addColorStop(0, "#BB8FCE");
+            grad.addColorStop(1, "#8E44AD");
+            ctx.fillStyle = grad;
             ctx.fillRect(this.x, this.y, this.w, this.h);
 
-            // Top Surface
-            ctx.fillStyle = "#BB8FCE";
-            ctx.fillRect(this.x, this.y, this.w, 6);
+            // Algae
+            ctx.fillStyle = "#1E8449";
+            for (let i = 0; i < this.w; i += 30) {
+                ctx.beginPath();
+                ctx.arc(this.x + i, this.y, 8, 0, Math.PI, true);
+                ctx.fill();
+            }
+        }
+        else {
+            // --- STYLE 2: INDUSTRIAL / PLANKTON'S LAIR ---
+            ctx.fillStyle = "#37474F"; // Dark Steel
+            ctx.fillRect(this.x, this.y, this.w, this.h);
 
-            // Dark Crust
-            ctx.fillStyle = "#5B2C6F";
-            ctx.fillRect(this.x, this.y + this.h - 6, this.w, 6);
-
-            // ALGAE PATCHES
-            ctx.fillStyle = "#1E8449"; // Dark Algae
-            for (let i = 5; i < this.w; i += 30) {
-                ctx.fillRect(this.x + i, this.y + 2, 10, 4);
-                if (i % 60 === 0) ctx.fillRect(this.x + i + 4, this.y + 6, 6, 6);
+            // Rivets
+            ctx.fillStyle = "#90A4AE";
+            for (let i = 5; i < this.w; i += 20) {
+                ctx.fillRect(this.x + i, this.y + 5, 3, 3);
+                ctx.fillRect(this.x + i, this.y + this.h - 8, 3, 3);
             }
 
-            // Small "Bubble" craters
-            ctx.fillStyle = "#4A235A";
-            for (let i = 15; i < this.w; i += 45) {
-                ctx.fillRect(this.x + i, this.y + 14, 4, 4);
-                ctx.fillRect(this.x + i + 10, this.y + 8, 4, 4);
+            // Warning Stripe
+            ctx.fillStyle = "#FDD835";
+            for (let i = 0; i < this.w; i += 30) {
+                ctx.beginPath();
+                ctx.moveTo(this.x + i, this.y);
+                ctx.lineTo(this.x + i + 15, this.y);
+                ctx.lineTo(this.x + i + 5, this.y + 6);
+                ctx.lineTo(this.x + i - 10, this.y + 6);
+                ctx.fill();
             }
         }
 
-        // Clean subtle outline
-        ctx.strokeStyle = "rgba(0,0,0,0.5)";
-        ctx.lineWidth = 1;
+        // Outline
+        ctx.strokeStyle = "rgba(0,0,0,0.4)";
+        ctx.lineWidth = 2;
         ctx.strokeRect(this.x, this.y, this.w, this.h);
 
         ctx.restore();
