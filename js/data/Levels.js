@@ -1,105 +1,93 @@
 import { BonusType } from "../entities/Bonus.js";
 
 const Levels = [
-    // LEVEL 1 (Original)
-    // LEVEL 1 (Original)
+    // LEVEL 1: BIKINI BOTTOM BEACH (Beginner)
     {
-        playerStart: { x: 390, y: 480 },
-        enemy: { x: 50, y: 50, lives: 3 }, // Boss HP 3
-        goal: { x: 730, y: 110 },
+        name: "Bikini Bottom Beach",
+        playerStart: { x: 50, y: 470 }, // Increased height safety
+        enemy: { x: 700, y: 50, lives: 3 },
+        goal: { x: 730, y: 50 },
         colors: {
-            background: "#4fc3f7", // Ocean Blue
-            platforms: "#f4a460",  // Sandy Brown
+            background: "#4fc3f7",
+            platforms: "#F4D03F",
             text: "#fff"
         },
         platforms: [
-            { x: 0, y: 550, w: 800, h: 50 },
-            { x: 100, y: 450, w: 600, h: 30 },
-            { x: 100, y: 350, w: 600, h: 30 },
-            { x: 100, y: 250, w: 600, h: 30 },
-            { x: 0, y: 150, w: 800, h: 30 }
+            { x: 0, y: 550, w: 800, h: 50, type: 0 }, // Ground
+            { x: 100, y: 450, w: 600, h: 30, type: 0 },
+            { x: 0, y: 350, w: 250, h: 30, type: 0 },
+            { x: 550, y: 350, w: 250, h: 30, type: 0 },
+            { x: 200, y: 250, w: 400, h: 30, type: 0 },
+            { x: 0, y: 150, w: 800, h: 30, type: 0 }
         ],
         stairs: [
-            { x: 120, y: 450, w: 40, h: 100 },
-            { x: 640, y: 350, w: 40, h: 100 },
-            { x: 120, y: 250, w: 40, h: 100 },
-            { x: 640, y: 150, w: 40, h: 100 }
+            { x: 120, y: 440, w: 40, h: 120 }, // Conect L1 to Ground
+            { x: 600, y: 340, w: 40, h: 120 }, // Connect L2 to L1
+            { x: 120, y: 240, w: 40, h: 120 }, // Connect L3 to L2
+            { x: 640, y: 140, w: 40, h: 120 }  // Connect L4 to L3
         ]
     },
-    // LEVEL 2 (The Climb)
-    // LEVEL 2 (The Broken Bridge - Harder)
+    // LEVEL 2: THE KELP FOREST (Intermediate)
     {
-        playerStart: { x: 50, y: 480 },
-        enemy: { x: 400, y: 50, lives: 5 }, // Boss Center Top
-        goal: { x: 400, y: 100 }, // Goal Center Top
+        name: "The Kelp Forest",
+        playerStart: { x: 50, y: 500 }, // Safe starting gap
+        enemy: { x: 400, y: 50, lives: 5 },
+        goal: { x: 700, y: 80 },
         colors: {
-            background: "#200", // Dark Red
-            platforms: "#555",
-            text: "#ffaaaa"
+            background: "#1B5E20", // Deep Forest Green
+            platforms: "#8E44AD", // Rocky Reef
+            text: "#C8E6C9"
         },
         platforms: [
-            { x: 0, y: 550, w: 800, h: 50 }, // Ground
-
-            // Level 1: Gap in middle
-            { x: 0, y: 420, w: 350, h: 30 },   // Left
-            { x: 450, y: 420, w: 350, h: 30 }, // Right
-
-            // Level 2: Gap in middle
-            { x: 0, y: 290, w: 350, h: 30 },   // Left
-            { x: 450, y: 290, w: 350, h: 30 }, // Right
-
-            // Top: Center Island
-            { x: 200, y: 160, w: 400, h: 30 }
+            { x: 0, y: 580, w: 800, h: 30, type: 1 }, // Ground
+            { x: 50, y: 480, w: 200, h: 30, type: 1 },
+            { x: 350, y: 430, w: 200, h: 30, type: 1 },
+            { x: 500, y: 330, w: 250, h: 30, type: 1 },
+            { x: 150, y: 300, w: 250, h: 30, type: 1 },
+            { x: 50, y: 200, w: 700, h: 30, type: 1 },
+            { x: 300, y: 100, w: 400, h: 30, type: 1 }
         ],
         stairs: [
-            // Ground to L1 Left
-            { x: 50, y: 420, w: 40, h: 130 },
-
-            // L1 Right to L2 Right
-            { x: 700, y: 290, w: 40, h: 130 },
-
-            // L2 Left to Top Left
-            { x: 250, y: 160, w: 40, h: 130 }
+            { x: 100, y: 470, w: 30, h: 120 },
+            { x: 450, y: 420, w: 30, h: 170 },
+            { x: 600, y: 320, w: 30, h: 120 },
+            { x: 200, y: 290, w: 30, h: 150 },
+            { x: 100, y: 190, w: 30, h: 120 },
+            { x: 400, y: 90, w: 30, h: 120 }
         ]
     },
-    // LEVEL 3 (Ice Theme)
-    // LEVEL 3 (The Tower - Hardest)
+    // LEVEL 3: PLANKTON'S LAIR (Hard)
     {
-        playerStart: { x: 50, y: 510 },
-        enemy: { x: 400, y: 50, lives: 8 }, // Boss HP 8
-        goal: { x: 400, y: 100 }, // Goal Top Center
+        name: "Plankton's Lair",
+        playerStart: { x: 390, y: 510 }, // Safe starting gap
+        enemy: { x: 400, y: 30, lives: 8 },
+        goal: { x: 50, y: 50 },
         colors: {
-            background: "#b3e5fc", // Light Blue Ice
-            platforms: "#e0f7fa", // White/Cyan
-            text: "#006064" // Dark Teal
+            background: "#212121", // Dark Industrial
+            platforms: "#546E7A", // Steel/Tiki
+            text: "#FF5252"
         },
         platforms: [
-            { x: 0, y: 580, w: 800, h: 30 }, // Ground
-
-            // Zig Zag Pattern (Narrower, steeper)
-            { x: 0, y: 480, w: 700, h: 30 },   // Floor 1 (Gap Right)
-            { x: 100, y: 380, w: 700, h: 30 }, // Floor 2 (Gap Left)
-            { x: 0, y: 280, w: 700, h: 30 },   // Floor 3 (Gap Right)
-            { x: 100, y: 180, w: 700, h: 30 }, // Floor 4 (Gap Left)
-
-            // Top
-            { x: 300, y: 100, w: 200, h: 30 }
+            { x: 0, y: 580, w: 800, h: 30, type: 1 }, // Ground
+            // Symmetric but difficult ascent
+            { x: 100, y: 480, w: 100, h: 30, type: 1 },
+            { x: 600, y: 480, w: 100, h: 30, type: 1 },
+            { x: 300, y: 380, w: 200, h: 30, type: 1 },
+            { x: 0, y: 280, w: 250, h: 30, type: 1 },
+            { x: 550, y: 280, w: 250, h: 30, type: 1 },
+            { x: 200, y: 180, w: 400, h: 30, type: 1 },
+            { x: 0, y: 100, w: 200, h: 30, type: 1 }, // Goal side
+            { x: 600, y: 100, w: 200, h: 30, type: 1 }
         ],
         stairs: [
-            // Ground to L1
-            { x: 650, y: 480, w: 30, h: 100 },
-
-            // L1 to L2
-            { x: 150, y: 380, w: 30, h: 100 },
-
-            // L2 to L3
-            { x: 650, y: 280, w: 30, h: 100 },
-
-            // L3 to L4
-            { x: 150, y: 180, w: 30, h: 100 },
-
-            // L4 to Top
-            { x: 400, y: 100, w: 20, h: 80 }
+            { x: 150, y: 470, w: 20, h: 120 },
+            { x: 650, y: 470, w: 20, h: 120 },
+            { x: 400, y: 370, w: 20, h: 220 }, // Long climb
+            { x: 100, y: 270, w: 20, h: 120 },
+            { x: 700, y: 270, w: 20, h: 120 },
+            { x: 300, y: 170, w: 20, h: 120 },
+            { x: 500, y: 170, w: 20, h: 120 },
+            { x: 100, y: 90, w: 20, h: 100 }
         ]
     }
 ];

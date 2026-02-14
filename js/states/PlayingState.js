@@ -26,6 +26,7 @@ export default class PlayingState {
         }
 
         const levelData = Levels[this.currentLevel];
+        this.levelData = levelData; // Store for easy access
 
         this.player = new Player(levelData.playerStart.x, levelData.playerStart.y, "yellow");
         this.enemy = new Enemy(levelData.enemy.x, levelData.enemy.y);
@@ -170,11 +171,21 @@ export default class PlayingState {
             this.player.onGround = false;
             for (const p of this.platforms) {
                 const plt = p.getRect();
-                if (this.player.vy >= 0 && (prevY + this.player.h) <= plt.y && aabb(this.player.getRect(), plt)) {
+                const pr = this.player.getRect();
+
+                // LANDING (Top of platform)
+                if (this.player.vy >= 0 && (prevY + this.player.h) <= plt.y && aabb(pr, plt)) {
                     this.player.y = plt.y - this.player.h;
                     this.player.vy = 0;
                     this.player.onGround = true;
                     this.player.jumpCount = 0;
+                }
+
+                // CEILING COLLISION (Bottom of platform)
+                // If player is moving up and hits head
+                if (this.player.vy < 0 && prevY >= (plt.y + plt.h) && aabb(pr, plt)) {
+                    this.player.y = plt.y + plt.h;
+                    this.player.vy = 0;
                 }
             }
         }
@@ -298,84 +309,98 @@ export default class PlayingState {
             this.player.draw(ctx);
         }
 
-        ctx.fillStyle = levelData.colors.text || "#fff";
-        ctx.font = "16px monospace";
+        // HUD: LIVES
+        ctx.fillStyle = "#ffeb3b";
+        ctx.font = "bold 20px 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
         ctx.textAlign = "left";
+        ctx.shadowBlur = 4;
+        ctx.shadowColor = "#000";
+        ctx.fillText("LIVES", 20, 35);
 
-        ctx.fillText("LIVES:", 20, 35);
+        ctx.shadowBlur = 0;
         for (let i = 0; i < this.lives; i++) {
-            ctx.fillStyle = "#f00";
-            ctx.fillRect(80 + i * 20, 20, 15, 15);
+            // Heart icon
+            ctx.fillStyle = "#f44336";
+            const hx = 90 + i * 25;
+            const hy = 25;
+            ctx.beginPath();
+            ctx.moveTo(hx, hy + 5);
+            ctx.bezierCurveTo(hx - 10, hy - 5, hx - 15, hy + 5, hx, hy + 15);
+            ctx.bezierCurveTo(hx + 15, hy + 5, hx + 10, hy - 5, hx, hy + 5);
+            ctx.fill();
         }
 
-        ctx.fillStyle = levelData.colors.text || "#fff";
-        ctx.fillText(`AMMO: ${this.player.ammo}`, 20, 65);
+        // HUD: AMMO
+        ctx.fillStyle = "#4FC3F7";
+        ctx.fillText(`BUBBLES: ${this.player.ammo}`, 20, 65);
 
+        // HUD: BOSS
         if (this.enemy.lives > 0) {
-            ctx.fillText("BOSS:", 20, 95);
+            ctx.fillStyle = "#FF5252";
+            ctx.fillText("PLANKTON:", 20, 95);
             for (let i = 0; i < this.enemy.lives; i++) {
-                ctx.fillStyle = "#f00";
-                ctx.fillRect(80 + i * 20, 80, 15, 15);
+                ctx.fillRect(140 + i * 15, 80, 10, 15);
             }
         }
 
-        ctx.fillText(`LEVEL: ${this.currentLevel + 1}`, 20, 125);
+        // LEVEL NAME
+        ctx.fillStyle = "#fff";
+        ctx.textAlign = "center";
+        ctx.font = "bold 24px monospace";
+        ctx.fillText(levelData.name || `LEVEL ${this.currentLevel + 1}`, width / 2, 35);
 
-        // DRAW LADDERS (formerly stairs)
+        // LADDERS
         this.stairs.forEach(s => {
-            ctx.fillStyle = "#8D6E63"; // Brown wood
-            // Vertical rails
-            ctx.fillRect(s.x, s.y, 6, s.h);
-            ctx.fillRect(s.x + s.w - 6, s.y, 6, s.h);
-
-            // Rungs
+            ctx.fillStyle = "#795548";
+            ctx.fillRect(s.x, s.y, 4, s.h);
+            ctx.fillRect(s.x + s.w - 4, s.y, 4, s.h);
             ctx.fillStyle = "#A1887F";
             for (let y = s.y + 10; y < s.y + s.h; y += 15) {
                 ctx.fillRect(s.x, y, s.w, 4);
             }
-            // Detail shadow
-            ctx.strokeStyle = "rgba(0,0,0,0.4)";
-            ctx.lineWidth = 1;
-            ctx.strokeRect(s.x, s.y, s.w, s.h);
         });
 
-        // DRAW SCORE
+        // SCORE
         ctx.fillStyle = "#ffd700";
         ctx.textAlign = "right";
+        ctx.font = "bold 20px monospace";
         ctx.fillText(`SCORE: ${this.score}`, width - 20, 35);
         ctx.fillStyle = "#fff";
-        ctx.fillText(`HI: ${this.highScore}`, width - 20, 65);
+        ctx.font = "16px monospace";
+        ctx.fillText(`HI: ${this.highScore}`, width - 20, 60);
 
         if (this.victory) {
-            ctx.fillStyle = "rgba(0,100,0,0.8)";
+            ctx.fillStyle = "rgba(0,0,0,0.7)";
             ctx.fillRect(0, 0, width, height);
-            ctx.fillStyle = "#0f0";
-            ctx.font = "bold 50px monospace";
+
+            ctx.fillStyle = "#4CAF50";
+            ctx.font = "bold 60px 'Segoe UI'";
             ctx.textAlign = "center";
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = "#fff";
             ctx.fillText("YOU WIN!", width / 2, height / 2 - 50);
 
-            ctx.font = "20px monospace";
+            ctx.shadowBlur = 0;
+            ctx.font = "24px monospace";
             ctx.fillStyle = "#fff";
-
             if (this.currentLevel < Levels.length - 1) {
-                ctx.fillText("Press ENTER for Next Level", width / 2, height / 2 + 20);
-                ctx.fillText("Press R / ESC for Menu", width / 2, height / 2 + 50);
+                ctx.fillText("Press ENTER for Next Level", width / 2, height / 2 + 50);
             } else {
-                ctx.fillText("ALL LEVELS COMPLETED!", width / 2, height / 2 + 20);
-                ctx.fillText("Press R to Play Again", width / 2, height / 2 + 50);
+                ctx.fillText("ALL LEVELS COMPLETED!", width / 2, height / 2 + 50);
+                ctx.fillText("Press R to Play Again", width / 2, height / 2 + 90);
             }
-
         } else if (this.lives <= 0) {
-            ctx.fillStyle = "rgba(100,0,0,0.8)";
+            ctx.fillStyle = "rgba(0,0,0,0.8)";
             ctx.fillRect(0, 0, width, height);
-            ctx.fillStyle = "#f00";
-            ctx.font = "bold 50px monospace";
+
+            ctx.fillStyle = "#F44336";
+            ctx.font = "bold 60px 'Segoe UI'";
             ctx.textAlign = "center";
-            ctx.fillText("GAME OVER", width / 2, height / 2);
-            ctx.font = "20px monospace";
+            ctx.fillText("GAME OVER", width / 2, height / 2 - 20);
+
+            ctx.font = "24px monospace";
             ctx.fillStyle = "#fff";
-            ctx.fillText("Press R to restart", width / 2, height / 2 + 50);
-            ctx.fillText("Press ESC for Menu", width / 2, height / 2 + 80);
+            ctx.fillText("Press R to Restart", width / 2, height / 2 + 60);
         }
     }
 }

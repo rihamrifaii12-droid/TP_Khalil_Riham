@@ -41,6 +41,14 @@ export default class Player {
     }
 
     getRect() {
-        return { x: this.x, y: this.y, w: this.w, h: this.h };
+        // Significantly improved collision for platforms:
+        // Hitbox is slightly narrower (40px) and centered.
+        // Height is 55px, and it's aligned with the BOTTOM of the 60px sprite.
+        return {
+            x: this.x + 10,
+            y: this.y + 5, // Starts 5px from top
+            w: this.w - 20,
+            h: this.h - 5  // Ends exactly at this.y + 60 (visual bottom)
+        };
     }
 }

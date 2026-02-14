@@ -89,10 +89,13 @@ export default class Ball {
 
     draw(ctx) {
         ctx.save();
+        const time = Date.now() * 0.005;
+        const pulse = Math.sin(time) * 2;
+
         // Jellyfish Dome (Pink)
         ctx.fillStyle = "#FF80AB";
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, Math.PI, 0);
+        ctx.arc(this.x, this.y, this.radius + pulse, Math.PI, 0);
         ctx.fill();
 
         // Spots (Purple)
@@ -102,14 +105,15 @@ export default class Ball {
         ctx.arc(this.x + 4, this.y - 6, 2, 0, Math.PI * 2);
         ctx.fill();
 
-        // Tentacles (Simple lines)
+        // Tentacles (Wavy)
         ctx.strokeStyle = "#FF80AB";
         ctx.lineWidth = 2;
         ctx.beginPath();
         for (let i = -1; i <= 1; i++) {
-            const tx = this.x + i * 4;
+            const tx = this.x + i * 5;
             ctx.moveTo(tx, this.y);
-            ctx.lineTo(tx + Math.sin(Date.now() * 0.01 + i) * 3, this.y + 8);
+            const wave = Math.sin(time * 2 + i) * 5;
+            ctx.bezierCurveTo(tx + wave, this.y + 5, tx - wave, this.y + 10, tx, this.y + 15);
         }
         ctx.stroke();
         ctx.restore();

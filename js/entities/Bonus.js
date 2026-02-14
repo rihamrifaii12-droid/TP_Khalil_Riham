@@ -24,16 +24,47 @@ export default class Bonus {
     update(dt) { }
 
     draw(ctx) {
-        ctx.fillStyle = this.color;
-        ctx.fillRect(this.x, this.y, this.w, this.h);
+        ctx.save();
+        const time = Date.now() * 0.005;
+        const hover = Math.sin(time * 2) * 3;
 
-        // Simple label without fancy fonts
-        ctx.fillStyle = "#000";
-        ctx.font = "10px monospace";
-        ctx.textAlign = "center";
-        let label = this.type[0]; // A, L, F, S
-        if (this.type === BonusType.SCORE) label = "$";
-        ctx.fillText(label, this.x + this.w / 2, this.y + this.h / 2 + 3);
+        ctx.translate(this.x + this.w / 2, this.y + this.h / 2 + hover);
+
+        // Glow
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = this.color;
+
+        ctx.fillStyle = this.color;
+        if (this.type === BonusType.LIFE) {
+            // Heart shape
+            ctx.beginPath();
+            ctx.moveTo(0, 5);
+            ctx.bezierCurveTo(-10, -5, -15, 5, 0, 15);
+            ctx.bezierCurveTo(15, 5, 10, -5, 0, 5);
+            ctx.fill();
+        } else if (this.type === BonusType.AMMO) {
+            // Bubble shape
+            ctx.beginPath();
+            ctx.arc(0, 0, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = "#fff";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        } else if (this.type === BonusType.SCORE) {
+            // Coin shape
+            ctx.beginPath();
+            ctx.arc(0, 0, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = "#B8860B";
+            ctx.font = "bold 12px serif";
+            ctx.textAlign = "center";
+            ctx.fillText("$", 0, 4);
+        } else {
+            // Default square for Freeze
+            ctx.fillRect(-this.w / 2, -this.h / 2, this.w, this.h);
+        }
+
+        ctx.restore();
     }
 
     getRect() {

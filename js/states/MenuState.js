@@ -32,63 +32,54 @@ export default class MenuState {
     draw(ctx) {
         const { width, height } = ctx.canvas;
 
-        // Use Theme Background
         drawBackground(ctx, width, height, this.pulse, "menu");
 
-        // Bubbles
-        ctx.fillStyle = "rgba(255,255,255,0.3)";
-        this.bubbles.forEach(b => {
-            ctx.beginPath();
-            ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
-            ctx.fill();
-        });
-
-        // Draw Houses (Bottom Layer)
-        // Houses removed as per request
-
-
-
-
-        // Title
-        ctx.fillStyle = "#ffeb3b"; // SpongeBob Yellow
-        ctx.strokeStyle = "#000";
-        ctx.lineWidth = 5;
-        ctx.font = "bold 60px monospace"; // Ideally a 'SpongeBob' font but monospace is safe
-        ctx.textAlign = "center";
-
-        ctx.strokeText("PIXEL CHASE", width / 2, height / 3);
-        ctx.fillText("PIXEL CHASE", width / 2, height / 3);
-
-        ctx.font = "bold 30px monospace";
-        ctx.fillStyle = "#fff";
-        ctx.strokeText("SQUAREPANTS EDITION", width / 2, height / 3 + 50);
-        ctx.fillText("SQUAREPANTS EDITION", width / 2, height / 3 + 50);
-
-        ctx.fillStyle = "#fff";
-        ctx.font = "20px monospace";
-        ctx.textAlign = "center";
-
-        // ctx.fillText("Press ENTER to Start", width / 2, height / 2 + 50); // Removed duplicate
-        ctx.fillText("Press T to Toggle Theme", width / 2, height / 2 + 80);
-
-        // Show High Score
-        const highScore = localStorage.getItem("highScore") || 0;
-        ctx.fillStyle = "#ffd700"; // Gold
-        ctx.fillText(`HIGH SCORE: ${highScore}`, width / 2, height / 2 + 120);
-
-        // Start Text with Pulse
-        const scale = 1 + Math.sin(this.pulse) * 0.1;
+        // Title Styling
         ctx.save();
-        ctx.translate(width / 2, height / 2 + 50);
+        ctx.textAlign = "center";
 
+        // Main Title
+        const titleY = height / 3;
+        ctx.font = "bold 80px 'Arial Black', Gadget, sans-serif";
         ctx.fillStyle = "#ffeb3b";
-        ctx.strokeStyle = "#d32f2f"; // Red outline
-        ctx.lineWidth = 2;
-        ctx.font = "bold 40px monospace";
-        ctx.strokeText("PRESS ENTER TO START", 0, 0);
-        ctx.fillText("PRESS ENTER TO START", 0, 0);
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 8;
+        ctx.strokeText("PIXEL CHASE", width / 2, titleY);
+        ctx.fillText("PIXEL CHASE", width / 2, titleY);
 
+        // Subtitle
+        ctx.font = "bold 30px 'Arial Black'";
+        ctx.fillStyle = "#FF5252";
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 4;
+        ctx.strokeText("SQUAREPANTS EDITION", width / 2, titleY + 60);
+        ctx.fillText("SQUAREPANTS EDITION", width / 2, titleY + 60);
+
+        // Instructions
         ctx.restore();
+        ctx.fillStyle = "#fff";
+        ctx.font = "bold 20px monospace";
+        ctx.textAlign = "center";
+
+        const startY = height / 2 + 50;
+        const scale = 1 + Math.sin(this.pulse * 2) * 0.05;
+
+        ctx.save();
+        ctx.translate(width / 2, startY);
+        ctx.scale(scale, scale);
+        ctx.fillStyle = "#FFEB3B";
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "#FFEB3B";
+        ctx.fillText("PRESS ENTER TO START", 0, 0);
+        ctx.restore();
+
+        ctx.font = "16px monospace";
+        ctx.fillText("T: Toggle Theme   UP/SPACE: Jump   F/ENTER: Shoot", width / 2, height - 50);
+
+        // High Score
+        const highScore = localStorage.getItem("highScore") || 0;
+        ctx.fillStyle = "#ffd700";
+        ctx.fillText(`BEST SCORE: ${highScore}`, width / 2, height - 20);
     }
 
 
