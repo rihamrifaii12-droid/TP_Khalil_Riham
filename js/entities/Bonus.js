@@ -67,8 +67,47 @@ export default class Bonus {
             ctx.font = "bold 12px serif";
             ctx.textAlign = "center";
             ctx.fillText("$", 0, 4);
+        } else if (this.type === BonusType.FREEZE) {
+            // Snow Flask (Bottle with Snowflake)
+            ctx.fillStyle = "#E1F5FE";
+            // Bottle Body
+            ctx.beginPath();
+            ctx.moveTo(-7, 8);
+            ctx.lineTo(7, 8);
+            ctx.lineTo(7, -5);
+            ctx.lineTo(3, -10);
+            ctx.lineTo(3, -15);
+            ctx.lineTo(-3, -15);
+            ctx.lineTo(-3, -10);
+            ctx.lineTo(-7, -5);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = "#0288D1";
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // Liquid inside
+            ctx.fillStyle = "#B3E5FC";
+            ctx.beginPath();
+            ctx.moveTo(-5, 6);
+            ctx.lineTo(5, 6);
+            ctx.lineTo(5, 0);
+            ctx.lineTo(-5, 0);
+            ctx.closePath();
+            ctx.fill();
+
+            // Snowflake icon
+            ctx.strokeStyle = "#0288D1";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            for (let i = 0; i < 6; i++) {
+                ctx.moveTo(0, 0);
+                const angle = (i * Math.PI) / 3;
+                ctx.lineTo(Math.cos(angle) * 4, Math.sin(angle) * 4);
+            }
+            ctx.stroke();
         } else {
-            // Default square for Freeze
+            // Default square for others (if any)
             ctx.fillRect(-this.w / 2, -this.h / 2, this.w, this.h);
         }
 

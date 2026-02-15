@@ -2,8 +2,8 @@ export default class Goal {
     constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.w = 120; // Size for maison.png
-        this.h = 120;
+        this.w = 180; // Larger size for maison.png
+        this.h = 180;
         this.pulse = 0;
         this.image = new Image();
         this.image.src = "assets/images/maison.png";

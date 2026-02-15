@@ -54,8 +54,8 @@ export default class MenuState {
         ctx.fillStyle = "#ffeb3b";
         ctx.strokeStyle = "#000";
         ctx.lineWidth = 8;
-        ctx.strokeText("PIXEL CHASE", width / 2, titleY);
-        ctx.fillText("PIXEL CHASE", width / 2, titleY);
+        ctx.strokeText("SAVE THE RECIPE", width / 2, titleY);
+        ctx.fillText("SAVE THE RECIPE", width / 2, titleY);
 
         // Subtitle
         ctx.font = "bold 30px 'Arial Black'";

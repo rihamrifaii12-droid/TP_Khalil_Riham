@@ -10,7 +10,7 @@ export default class Enemy {
         this.isFrozen = false;
         this.lives = 3;
         this.throwTimer = 0;
-        this.throwInterval = 15.0; // Seconds between throws (Slower as requested)
+        this.throwInterval = 8.0; // Every 8 seconds as requested
     }
 
     update(dt, balls) {

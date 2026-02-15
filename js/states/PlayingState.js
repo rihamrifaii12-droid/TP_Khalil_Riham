@@ -10,7 +10,6 @@ import Bonus, { BonusType } from "../entities/Bonus.js";
 
 import Levels from "../data/Levels.js";
 import MenuState from "./MenuState.js";
-import GameOverState from "./GameOverState.js";
 import LeaderboardState from "./LeaderboardState.js";
 import { ScoreManager } from "../utils/ScoreManager.js";
 import { drawBackground } from "../utils/Theme.js";
@@ -62,23 +61,27 @@ export default class PlayingState {
         this.platforms = levelData.platforms.map((p, index) => new Platform(p.x, p.y, p.w, p.h, platformColor, index));
 
         this.stairs = levelData.stairs;
+        this.gameOverProcessed = false;
     }
 
     update(dt, input, canvas) {
         if (this.lives <= 0 || this.victory) {
-            // Give 1 second to see the result before switching automatically
-            if (!this.transitionTimer) this.transitionTimer = 1.0;
-            this.transitionTimer -= dt;
+            if (!this.gameOverProcessed && this.lives <= 0) {
+                AudioManager.pauseMusic();
+                AudioManager.playSound("Lose", () => {
+                    AudioManager.resumeMusic();
+                });
+                ScoreManager.addScore("Player", this.score);
+                this.gameOverProcessed = true;
+            }
 
-            if (this.transitionTimer <= 0) {
-                if (this.lives <= 0) {
-                    this.scene.switchState(new GameOverState(this.scene, this.score));
-                    return;
-                }
+            if (this.victory) {
+                // Give 1 second to see the result before showing victory options
+                if (!this.transitionTimer) this.transitionTimer = 1.0;
+                this.transitionTimer -= dt;
 
-                if (this.victory) {
+                if (this.transitionTimer <= 0) {
                     if (this.currentLevel < Levels.length - 1) {
-                        // Level cleared, wait for input to next level
                         if (input.isDown("Enter") || input.isDown("Space")) {
                             this.currentLevel++;
                             this.reset();
@@ -86,11 +89,8 @@ export default class PlayingState {
                     } else {
                         // Game Won! Save score and go to leaderboard
                         ScoreManager.addScore("Player", this.score);
-
-                        // Play Win Music
                         AudioManager.stopMusic();
                         AudioManager.playSound("win");
-
                         this.scene.switchState(new LeaderboardState(this.scene, this.score));
                         return;
                     }
@@ -101,9 +101,14 @@ export default class PlayingState {
                 this.reset();
             }
 
-            if (input.isDown("Escape")) {
+            if (input.isDown("Escape") || input.isDown("KeyM")) {
                 this.scene.switchState(new MenuState(this.scene));
             }
+            return;
+        }
+
+        if (input.isDown("KeyM")) {
+            this.scene.switchState(new MenuState(this.scene));
             return;
         }
 
@@ -228,6 +233,10 @@ export default class PlayingState {
             const timeTaken = (Date.now() - this.levelStartTime) / 1000;
             const timeBonus = Math.max(0, Math.floor((300 - timeTaken) * 10)); // 5 mins max logic
             this.addScore(timeBonus);
+
+            // Reposition Goal to Boss location
+            this.goal.x = this.enemy.x + this.enemy.size / 2 - this.goal.w / 2;
+            this.goal.y = this.enemy.y + this.enemy.size;
         }
 
         this.balls.forEach(b => b.update(dt, this.player, this.stairs, this.platforms, this.freezeTimer > 0));
@@ -478,9 +487,10 @@ export default class PlayingState {
             ctx.fillStyle = "#fff";
             if (this.currentLevel < Levels.length - 1) {
                 ctx.fillText("Press ENTER for Next Level", width / 2, height / 2 + 50);
+                ctx.fillText("Press M to Menu", width / 2, height / 2 + 80);
             } else {
                 ctx.fillText("ALL LEVELS COMPLETED!", width / 2, height / 2 + 50);
-                ctx.fillText("Press R to Play Again", width / 2, height / 2 + 90);
+                ctx.fillText("Press R to Play Again or M for Menu", width / 2, height / 2 + 90);
             }
         } else if (this.lives <= 0) {
             ctx.fillStyle = "rgba(0,0,0,0.8)";
@@ -498,6 +508,7 @@ export default class PlayingState {
             ctx.font = "24px monospace";
             ctx.fillStyle = "#fff";
             ctx.fillText("Press R to Restart", width / 2, height / 2 + 80);
+            ctx.fillText("Press M for Menu", width / 2, height / 2 + 110);
         }
     }
 
