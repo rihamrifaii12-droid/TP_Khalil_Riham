@@ -1,5 +1,6 @@
 import Player from "../entities/Player.js";
 import Enemy from "../entities/Enemy.js";
+import GuardEnemy from "../entities/GuardEnemy.js";
 import Platform from "../entities/Platform.js";
 import { aabb } from "../utils/Collision.js";
 import Ball from "../entities/Ball.js";
@@ -9,13 +10,19 @@ import Bonus, { BonusType } from "../entities/Bonus.js";
 
 import Levels from "../data/Levels.js";
 import MenuState from "./MenuState.js";
+import GameOverState from "./GameOverState.js";
+import LeaderboardState from "./LeaderboardState.js";
+import { ScoreManager } from "../utils/ScoreManager.js";
 import { drawBackground } from "../utils/Theme.js";
+import AudioManager from "../utils/AudioManager.js";
 
 export default class PlayingState {
     constructor(scene) {
         this.scene = scene; // Store reference to GameScene
         this.currentLevel = 0; // Start at Level 1 (Index 0)
         this.score = 0; // Reset score on full game restart
+        this.worldWidth = 800; // Original designed width
+        this.worldHeight = 600; // Original designed height
         this.reset();
     }
 
@@ -38,6 +45,7 @@ export default class PlayingState {
         this.maxLives = 5;
         this.balls = [];
         this.playerProjectiles = [];
+        this.guardEnemies = (levelData.guardEnemies || []).map(g => new GuardEnemy(g.x, g.y, g.range, g.speed));
         this.bonuses = [];
         this.invincibilityTimer = 0;
         this.freezeTimer = 0;
@@ -58,26 +66,42 @@ export default class PlayingState {
 
     update(dt, input, canvas) {
         if (this.lives <= 0 || this.victory) {
+            // Give 1 second to see the result before switching automatically
+            if (!this.transitionTimer) this.transitionTimer = 1.0;
+            this.transitionTimer -= dt;
+
+            if (this.transitionTimer <= 0) {
+                if (this.lives <= 0) {
+                    this.scene.switchState(new GameOverState(this.scene, this.score));
+                    return;
+                }
+
+                if (this.victory) {
+                    if (this.currentLevel < Levels.length - 1) {
+                        // Level cleared, wait for input to next level
+                        if (input.isDown("Enter") || input.isDown("Space")) {
+                            this.currentLevel++;
+                            this.reset();
+                        }
+                    } else {
+                        // Game Won! Save score and go to leaderboard
+                        ScoreManager.addScore("Player", this.score);
+
+                        // Play Win Music
+                        AudioManager.stopMusic();
+                        AudioManager.playSound("win");
+
+                        this.scene.switchState(new LeaderboardState(this.scene, this.score));
+                        return;
+                    }
+                }
+            }
 
             if (input.isDown("KeyR")) {
-                if (this.victory && this.currentLevel >= Levels.length - 1) {
-                    this.currentLevel = 0;
-                }
                 this.reset();
             }
 
-            if (this.victory && (input.isDown("Enter") || input.isDown("Space"))) {
-                if (this.currentLevel < Levels.length - 1) {
-                    this.currentLevel++;
-                    this.reset();
-                } else {
-                    this.scene.switchState(new MenuState(this.scene));
-                }
-            }
-
-
             if (input.isDown("Escape")) {
-
                 this.scene.switchState(new MenuState(this.scene));
             }
             return;
@@ -155,9 +179,9 @@ export default class PlayingState {
         }
 
         if (this.player.x < 0) this.player.x = 0;
-        if (this.player.x + this.player.w > canvas.width) this.player.x = canvas.width - this.player.w;
+        if (this.player.x + this.player.w > this.worldWidth) this.player.x = this.worldWidth - this.player.w;
 
-        if (this.player.y > canvas.height) {
+        if (this.player.y > this.worldHeight + 50) {
             this.takeDamage();
             this.player.x = this.levelData.playerStart.x;
             this.player.y = this.levelData.playerStart.y;
@@ -207,6 +231,7 @@ export default class PlayingState {
         }
 
         this.balls.forEach(b => b.update(dt, this.player, this.stairs, this.platforms, this.freezeTimer > 0));
+        this.guardEnemies.forEach(g => g.update(dt, this.platforms));
         this.playerProjectiles.forEach(p => p.update(dt));
         this.bonuses.forEach(b => b.update(dt));
 
@@ -216,6 +241,25 @@ export default class PlayingState {
 
         if (this.enemy.lives > 0 && aabb(this.player.getRect(), this.enemy.getRect())) {
             this.lives = 0;
+        }
+
+        // Guard Collision (Half-life or Stomp)
+        if (this.invincibilityTimer <= 0) {
+            for (let i = this.guardEnemies.length - 1; i >= 0; i--) {
+                const g = this.guardEnemies[i];
+                if (aabb(this.player.getRect(), g.getRect())) {
+                    // STOMP CHECK: Falling and player feet above enemy center
+                    if (this.player.vy > 0 && this.player.y + this.player.h < g.y + g.h / 2) {
+                        this.guardEnemies.splice(i, 1);
+                        this.player.vy = -400; // Bounce
+                        this.player.jumpCount = 1; // Allow second jump after bounce
+                        this.addScore(200);
+                    } else {
+                        this.takeDamage(0.5); // Regular hit
+                        break;
+                    }
+                }
+            }
         }
 
         for (let i = this.bonuses.length - 1; i >= 0; i--) {
@@ -249,7 +293,7 @@ export default class PlayingState {
         } else {
             for (const b of this.balls) {
                 if (aabb(this.player.getRect(), b.getRect())) {
-                    this.takeDamage();
+                    this.takeDamage(1); // Full heart for jellyfish
                     this.balls = this.balls.filter(ball => ball !== b);
                     break;
                 }
@@ -276,16 +320,18 @@ export default class PlayingState {
         this.bonuses.push(new Bonus(bx, by, randomType));
     }
 
-    takeDamage() {
-        this.lives--;
+    takeDamage(amount = 1) {
+        this.lives -= amount;
         this.invincibilityTimer = 1.5;
+        if (this.lives < 0) this.lives = 0;
     }
 
     addScore(points) {
         this.score += points;
-        if (this.score > this.highScore) {
-            this.highScore = this.score;
-            localStorage.setItem("highScore", this.highScore);
+        // Keep compat with legacy highScore display in HUD
+        const hi = parseInt(localStorage.getItem("highScore")) || 0;
+        if (this.score > hi) {
+            localStorage.setItem("highScore", this.score);
         }
     }
 
@@ -296,18 +342,43 @@ export default class PlayingState {
         const time = Date.now() / 1000;
         drawBackground(ctx, width, height, time, "game");
 
+        const offsetX = Math.max(0, (width - this.worldWidth) / 2);
+
+        // WORLD COORDINATES (Translated)
+        ctx.save();
+        ctx.translate(offsetX, 0);
+
         this.platforms.forEach(p => p.draw(ctx));
         this.enemy.draw(ctx);
         if (this.enemy.lives <= 0) {
             this.goal.draw(ctx);
         }
+
         this.balls.forEach(b => b.draw(ctx));
+        this.guardEnemies.forEach(g => g.draw(ctx));
         this.playerProjectiles.forEach(p => p.draw(ctx));
         this.bonuses.forEach(b => b.draw(ctx));
 
         if (!(this.invincibilityTimer > 0 && Math.floor(Date.now() / 100) % 2 === 0)) {
             this.player.draw(ctx);
         }
+
+        // LADDERS
+        this.stairs.forEach(s => {
+            ctx.fillStyle = "#795548";
+            ctx.fillRect(s.x, s.y, 4, s.h);
+            ctx.fillRect(s.x + s.w - 4, s.y, 4, s.h);
+            ctx.fillStyle = "#A1887F";
+            for (let y = s.y + 10; y < s.y + s.h; y += 15) {
+                ctx.fillRect(s.x, y, s.w, 4);
+            }
+        });
+
+        ctx.restore();
+
+        // UI COORDINATES (Relative to centered world or screen)
+        ctx.save();
+        ctx.translate(offsetX, 0);
 
         // HUD: LIVES
         ctx.fillStyle = "#ffeb3b";
@@ -318,16 +389,28 @@ export default class PlayingState {
         ctx.fillText("LIVES", 20, 35);
 
         ctx.shadowBlur = 0;
-        for (let i = 0; i < this.lives; i++) {
-            // Heart icon
-            ctx.fillStyle = "#f44336";
+        for (let i = 0; i < this.maxLives; i++) {
             const hx = 90 + i * 25;
             const hy = 25;
-            ctx.beginPath();
-            ctx.moveTo(hx, hy + 5);
-            ctx.bezierCurveTo(hx - 10, hy - 5, hx - 15, hy + 5, hx, hy + 15);
-            ctx.bezierCurveTo(hx + 15, hy + 5, hx + 10, hy - 5, hx, hy + 5);
-            ctx.fill();
+
+            // Background / Empty heart
+            ctx.fillStyle = "rgba(0,0,0,0.3)";
+            this.drawHeart(ctx, hx, hy);
+
+            // Full or Half heart
+            const remaining = this.lives - i;
+            if (remaining > 0) {
+                ctx.save();
+                ctx.fillStyle = "#f44336";
+                if (remaining < 1) {
+                    // Half heart: Clip to left half
+                    ctx.beginPath();
+                    ctx.rect(hx - 15, hy - 5, 15, 25);
+                    ctx.clip();
+                }
+                this.drawHeart(ctx, hx, hy);
+                ctx.restore();
+            }
         }
 
         // HUD: INGREDIENTS
@@ -366,10 +449,18 @@ export default class PlayingState {
         ctx.fillStyle = "#ffd700";
         ctx.textAlign = "right";
         ctx.font = "bold 20px monospace";
-        ctx.fillText(`SCORE: ${this.score}`, width - 20, 35);
+        ctx.fillText(`SCORE: ${this.score}`, this.worldWidth - 20, 35);
         ctx.fillStyle = "#fff";
         ctx.font = "16px monospace";
-        ctx.fillText(`HI: ${this.highScore}`, width - 20, 60);
+        ctx.fillText(`HI: ${this.highScore}`, this.worldWidth - 20, 60);
+
+        ctx.restore();
+
+        // LEVEL NAME (Screen Centered)
+        ctx.fillStyle = "#fff";
+        ctx.textAlign = "center";
+        ctx.font = "bold 24px monospace";
+        ctx.fillText(levelData.name || `LEVEL ${this.currentLevel + 1}`, width / 2, 35);
 
         if (this.victory) {
             ctx.fillStyle = "rgba(0,0,0,0.7)";
@@ -408,5 +499,13 @@ export default class PlayingState {
             ctx.fillStyle = "#fff";
             ctx.fillText("Press R to Restart", width / 2, height / 2 + 80);
         }
+    }
+
+    drawHeart(ctx, x, y) {
+        ctx.beginPath();
+        ctx.moveTo(x, y + 5);
+        ctx.bezierCurveTo(x - 10, y - 5, x - 15, y + 5, x, y + 15);
+        ctx.bezierCurveTo(x + 15, y + 5, x + 10, y - 5, x, y + 5);
+        ctx.fill();
     }
 }

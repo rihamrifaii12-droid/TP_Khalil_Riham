@@ -1,4 +1,6 @@
 import PlayingState from "./PlayingState.js";
+import LeaderboardState from "./LeaderboardState.js";
+import AudioManager from "../utils/AudioManager.js";
 
 import { drawBackground, toggleTheme } from "../utils/Theme.js";
 
@@ -8,12 +10,13 @@ export default class MenuState {
         this.bubbles = [];
         this.pulse = 0;
         this.toggleCooldown = 0;
-
-
     }
 
     update(dt, input, canvas) {
-
+        // Start playlist on first interaction
+        if (input.isDown("Enter") || input.isDown("Space") || input.isDown("KeyT") || input.isDown("KeyH")) {
+            AudioManager.startPlaylist();
+        }
 
         this.pulse += dt * 5;
         if (this.toggleCooldown > 0) this.toggleCooldown -= dt;
@@ -23,8 +26,15 @@ export default class MenuState {
             this.toggleCooldown = 0.5; // Half second debounce
         }
 
+        // Leaderboard (H key)
+        if (input.isDown("KeyH") && this.toggleCooldown <= 0) {
+            this.scene.switchState(new LeaderboardState(this.scene));
+            this.toggleCooldown = 0.5;
+        }
+
         // Transition to Game
         if (input.isDown("Enter") || input.isDown("Space")) {
+            AudioManager.startPlaylist();
             this.scene.switchState(new PlayingState(this.scene));
         }
     }
@@ -74,7 +84,7 @@ export default class MenuState {
         ctx.restore();
 
         ctx.font = "16px monospace";
-        ctx.fillText("T: Toggle Theme   UP/SPACE: Jump   F/ENTER: Shoot", width / 2, height - 50);
+        ctx.fillText("T: Theme  H: Leaderboard  UP/SPACE: Jump  F: Shoot", width / 2, height - 50);
 
         // High Score
         const highScore = localStorage.getItem("highScore") || 0;

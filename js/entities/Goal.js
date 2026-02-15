@@ -2,55 +2,42 @@ export default class Goal {
     constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.w = 50;
-        this.h = 80;
+        this.w = 120; // Size for maison.png
+        this.h = 120;
         this.pulse = 0;
+        this.image = new Image();
+        this.image.src = "assets/images/maison.png";
     }
 
     update(dt) {
-        this.pulse += dt * 2;
+        this.pulse += dt * 3;
     }
 
     draw(ctx) {
         ctx.save();
-        ctx.translate(this.x + this.w / 2, this.y + this.h / 2);
+        // Adjust anchor point so it sits on the platform (y - h)
+        const centerX = this.x + this.w / 2;
+        const bottomY = this.y;
+
+        ctx.translate(centerX, bottomY);
         const scale = 1 + Math.sin(this.pulse) * 0.05;
         ctx.scale(scale, scale);
 
-        // Pineapple Body
-        ctx.fillStyle = "#FF9800"; // Orange
-        ctx.beginPath();
-        ctx.ellipse(0, 10, this.w / 2, this.h / 2 - 10, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Cross-hatch
-        ctx.strokeStyle = "#E65100";
-        ctx.lineWidth = 1;
-        for (let i = -this.w / 2; i < this.w / 2; i += 10) {
-            ctx.beginPath(); ctx.moveTo(i, -20); ctx.lineTo(i + 10, 40); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(i + 10, -20); ctx.lineTo(i, 40); ctx.stroke();
-        }
-
-        // Leaves
-        ctx.fillStyle = "#4CAF50";
-        for (let i = -1; i <= 1; i++) {
+        if (this.image.complete && this.image.naturalWidth !== 0) {
+            // Draw from bottom-center
+            ctx.drawImage(this.image, -this.w / 2, -this.h, this.w, this.h);
+        } else {
+            // Fallback: Pineapple-like shape if image fails
+            ctx.fillStyle = "#FF9800";
             ctx.beginPath();
-            ctx.moveTo(i * 10, -20);
-            ctx.lineTo(i * 20, -45);
-            ctx.lineTo(i * 5, -30);
+            ctx.ellipse(0, -this.h / 2, this.w / 3, this.h / 2, 0, 0, Math.PI * 2);
             ctx.fill();
         }
-
-        // Door
-        ctx.fillStyle = "#90A4AE";
-        ctx.beginPath();
-        ctx.arc(0, 30, 12, Math.PI, 0);
-        ctx.fill();
 
         ctx.restore();
     }
 
     getRect() {
-        return { x: this.x, y: this.y, w: this.w, h: this.h };
+        return { x: this.x, y: this.y - this.h, w: this.w, h: this.h };
     }
 }

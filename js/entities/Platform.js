@@ -10,74 +10,214 @@ export default class Platform {
 
     draw(ctx) {
         ctx.save();
-        ctx.imageSmoothingEnabled = false;
+        ctx.imageSmoothingEnabled = true;
 
-        if (this.type === 0) {
-            // --- STYLE 0: SANDY BIKINI BOTTOM ---
+        // Clip to platform area
+        ctx.beginPath();
+        ctx.rect(this.x, this.y, this.w, this.h);
+        ctx.clip();
+
+        if (this.type === 0) { // --- BIKINI BOTTOM SAND (PREMIUM) ---
+            // 1. Base Sand Gradient
             const grad = ctx.createLinearGradient(this.x, this.y, this.x, this.y + this.h);
-            grad.addColorStop(0, "#F7DC6F");
-            grad.addColorStop(1, "#F4D03F");
+            grad.addColorStop(0, "#FFF9C4"); // Lighter top
+            grad.addColorStop(0.2, "#F9E79F");
+            grad.addColorStop(1, "#D4AC0D"); // Richer bottom
             ctx.fillStyle = grad;
             ctx.fillRect(this.x, this.y, this.w, this.h);
 
-            // Grains
-            ctx.fillStyle = "#B7950B";
-            for (let i = 5; i < this.w; i += 20) {
-                ctx.fillRect(this.x + i + Math.sin(i) * 5, this.y + 10, 2, 2);
-            }
-
-            // Seaweed
-            ctx.fillStyle = "#2ECC71";
-            for (let i = 10; i < this.w; i += 50) {
-                ctx.fillRect(this.x + i, this.y - 15, 4, 15);
-                ctx.fillRect(this.x + i - 4, this.y - 10, 4, 4);
-            }
-        }
-        else if (this.type === 1) {
-            // --- STYLE 1: ROCKY REEF / KELP FOREST ---
-            const grad = ctx.createLinearGradient(this.x, this.y, this.x, this.y + this.h);
-            grad.addColorStop(0, "#BB8FCE");
-            grad.addColorStop(1, "#8E44AD");
-            ctx.fillStyle = grad;
-            ctx.fillRect(this.x, this.y, this.w, this.h);
-
-            // Algae
-            ctx.fillStyle = "#1E8449";
-            for (let i = 0; i < this.w; i += 30) {
+            // 2. Sand Ripples (Subtle Waves)
+            ctx.strokeStyle = "rgba(183, 149, 11, 0.15)";
+            ctx.lineWidth = 1;
+            for (let j = 5; j < this.h; j += 15) {
                 ctx.beginPath();
-                ctx.arc(this.x + i, this.y, 8, 0, Math.PI, true);
-                ctx.fill();
-            }
-        }
-        else {
-            // --- STYLE 2: INDUSTRIAL / PLANKTON'S LAIR ---
-            ctx.fillStyle = "#37474F"; // Dark Steel
-            ctx.fillRect(this.x, this.y, this.w, this.h);
-
-            // Rivets
-            ctx.fillStyle = "#90A4AE";
-            for (let i = 5; i < this.w; i += 20) {
-                ctx.fillRect(this.x + i, this.y + 5, 3, 3);
-                ctx.fillRect(this.x + i, this.y + this.h - 8, 3, 3);
+                ctx.moveTo(this.x, this.y + j);
+                for (let i = 0; i <= this.w; i += 20) {
+                    ctx.quadraticCurveTo(this.x + i + 10, this.y + j + 5, this.x + i + 20, this.y + j);
+                }
+                ctx.stroke();
             }
 
-            // Warning Stripe
-            ctx.fillStyle = "#FDD835";
-            for (let i = 0; i < this.w; i += 30) {
+            // 3. Sand Grains (Noise)
+            ctx.fillStyle = "rgba(125, 102, 8, 0.2)";
+            const seed = (this.x + this.y) % 1000; // Semi-static noise
+            for (let i = 0; i < this.w; i += 6) {
+                for (let j = 0; j < this.h; j += 6) {
+                    const hash = Math.sin(seed + i * 0.1 + j * 0.7) * 10000;
+                    if ((hash - Math.floor(hash)) > 0.8) {
+                        ctx.fillRect(this.x + i, this.y + j, 1.5, 1.5);
+                    }
+                }
+            }
+
+            // 4. Detailed Seaweed
+            for (let i = 10; i < this.w; i += 30) {
+                const height = 15 + Math.sin(i) * 5;
+                ctx.fillStyle = i % 2 === 0 ? "#229954" : "#27AE60";
                 ctx.beginPath();
                 ctx.moveTo(this.x + i, this.y);
-                ctx.lineTo(this.x + i + 15, this.y);
-                ctx.lineTo(this.x + i + 5, this.y + 6);
-                ctx.lineTo(this.x + i - 10, this.y + 6);
+                ctx.quadraticCurveTo(this.x + i - 5, this.y - height / 2, this.x + i, this.y - height);
+                ctx.quadraticCurveTo(this.x + i + 5, this.y - height / 2, this.x + i, this.y);
                 ctx.fill();
+            }
+
+            // 5. Sky Flowers (SpongeBob style)
+            for (let i = 40; i < this.w; i += 100) {
+                this.drawSkyFlower(ctx, this.x + i, this.y + this.h / 2, 12, "rgba(255, 105, 180, 0.5)");
+            }
+
+        } else if (this.type === 1) { // --- KELP FOREST ROCK (PREMIUM) ---
+            // 1. Rock Base
+            ctx.fillStyle = "#4A235A";
+            ctx.fillRect(this.x, this.y, this.w, this.h);
+
+            // 2. Cracked Rock Detail
+            ctx.strokeStyle = "rgba(0,0,0,0.3)";
+            ctx.lineWidth = 1;
+            for (let i = 0; i < this.w; i += 40) {
+                for (let j = 0; j < this.h; j += 30) {
+                    ctx.beginPath();
+                    ctx.moveTo(this.x + i, this.y + j);
+                    ctx.lineTo(this.x + i + 20, this.y + j + 10);
+                    ctx.lineTo(this.x + i + 5, this.y + j + 25);
+                    ctx.closePath();
+                    ctx.fillStyle = `rgba(142, 68, 173, ${0.3 + Math.random() * 0.4})`;
+                    ctx.fill();
+                    ctx.stroke();
+                }
+            }
+
+            // 3. Glowing Forest Moss
+            ctx.fillStyle = "#1D8348";
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y);
+            for (let i = 0; i <= this.w; i += 8) {
+                const dy = Math.sin(i * 0.5) * 4 + 6;
+                ctx.lineTo(this.x + i, this.y + dy);
+            }
+            ctx.lineTo(this.x + this.w, this.y);
+            ctx.fill();
+
+            // 4. Bioluminescent Spores
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = "#58D68D";
+            ctx.fillStyle = "#ABEBC6";
+            for (let i = 15; i < this.w; i += 50) {
+                ctx.beginPath();
+                ctx.arc(this.x + i, this.y + this.h - 10, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.shadowBlur = 0;
+
+            // 5. Hanging Kelp Vines
+            ctx.strokeStyle = "#145A32";
+            ctx.lineWidth = 2;
+            for (let i = 20; i < this.w; i += 60) {
+                ctx.beginPath();
+                ctx.moveTo(this.x + i, this.y + this.h);
+                ctx.bezierCurveTo(this.x + i - 10, this.y + this.h + 10, this.x + i + 10, this.y + this.h + 20, this.x + i, this.y + this.h + 35);
+                ctx.stroke();
+            }
+
+        } else { // --- INDUSTRIAL LAIR (PREMIUM) ---
+            // 1. Brushed Metal Background
+            const grad = ctx.createLinearGradient(this.x, this.y, this.x + this.w, this.y + this.h);
+            grad.addColorStop(0, "#2C3E50");
+            grad.addColorStop(0.5, "#95A5A6");
+            grad.addColorStop(1, "#2C3E50");
+            ctx.fillStyle = grad;
+            ctx.fillRect(this.x, this.y, this.w, this.h);
+
+            // 2. High-Contrast Metal Reflection
+            ctx.fillStyle = "rgba(255,255,255,0.15)";
+            ctx.beginPath();
+            ctx.moveTo(this.x + this.w * 0.2, this.y);
+            ctx.lineTo(this.x + this.w * 0.4, this.y);
+            ctx.lineTo(this.x + this.w * 0.1, this.y + this.h);
+            ctx.lineTo(this.x - this.w * 0.1, this.y + this.h);
+            ctx.fill();
+
+            // 3. Bolts and Rivets with Depth
+            for (let i = 10; i < this.w; i += 40) {
+                // Top Bolt
+                this.drawBolt(ctx, this.x + i, this.y + 8);
+                // Bottom Bolt
+                this.drawBolt(ctx, this.x + i, this.y + this.h - 8);
+            }
+
+            // 4. Hazard Stripes with Dirt/Scratches
+            ctx.fillStyle = "#F1C40F";
+            for (let i = -20; i < this.w; i += 40) {
+                ctx.beginPath();
+                ctx.moveTo(this.x + i, this.y);
+                ctx.lineTo(this.x + i + 20, this.y);
+                ctx.lineTo(this.x + i, this.y + 12);
+                ctx.lineTo(this.x + i - 20, this.y + 12);
+                ctx.fill();
+            }
+            // Scratches
+            ctx.strokeStyle = "rgba(0,0,0,0.4)";
+            ctx.lineWidth = 1;
+            for (let i = 0; i < this.w; i += 25) {
+                ctx.beginPath();
+                ctx.moveTo(this.x + i, this.y + 2);
+                ctx.lineTo(this.x + i + 5, this.y + 8);
+                ctx.stroke();
+            }
+
+            // 5. Red Alert Glow at edges
+            ctx.fillStyle = "rgba(231, 76, 60, 0.4)";
+            if (Math.floor(Date.now() / 500) % 2 === 0) {
+                ctx.fillRect(this.x, this.y, 4, this.h);
+                ctx.fillRect(this.x + this.w - 4, this.y, 4, this.h);
             }
         }
 
-        // Outline
-        ctx.strokeStyle = "rgba(0,0,0,0.4)";
+        // Final Edge Polish (Inner Glow effect)
+        ctx.strokeStyle = "rgba(255,255,255,0.2)";
         ctx.lineWidth = 2;
+        ctx.strokeRect(this.x + 1, this.y + 1, this.w - 2, this.h - 2);
+        ctx.strokeStyle = "rgba(0,0,0,0.3)";
         ctx.strokeRect(this.x, this.y, this.w, this.h);
 
+        ctx.restore();
+    }
+
+    drawSkyFlower(ctx, x, y, radius, color) {
+        ctx.save();
+        ctx.fillStyle = color;
+        ctx.translate(x, y);
+        for (let i = 0; i < 5; i++) {
+            ctx.rotate((Math.PI * 2) / 5);
+            ctx.beginPath();
+            ctx.ellipse(radius, 0, radius, radius * 0.6, 0, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        // Flower Center
+        ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+        ctx.beginPath();
+        ctx.arc(0, 0, radius * 0.4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    }
+
+    drawBolt(ctx, x, y) {
+        ctx.save();
+        // Shadow
+        ctx.fillStyle = "rgba(0,0,0,0.5)";
+        ctx.beginPath();
+        ctx.arc(x + 1, y + 1, 4, 0, Math.PI * 2);
+        ctx.fill();
+        // Metal
+        ctx.fillStyle = "#BDC3C7";
+        ctx.beginPath();
+        ctx.arc(x, y, 4, 0, Math.PI * 2);
+        ctx.fill();
+        // Highlight
+        ctx.fillStyle = "#FFF";
+        ctx.beginPath();
+        ctx.arc(x - 1, y - 1, 1, 0, Math.PI * 2);
+        ctx.fill();
         ctx.restore();
     }
 
