@@ -9,6 +9,9 @@ import Bonus, { BonusType } from "../entities/Bonus.js";
 
 import Levels from "../data/Levels.js";
 import MenuState from "./MenuState.js";
+import GameOverState from "./GameOverState.js";
+import LeaderboardState from "./LeaderboardState.js";
+import { ScoreManager } from "../utils/ScoreManager.js";
 import { drawBackground } from "../utils/Theme.js";
 
 export default class PlayingState {
@@ -16,6 +19,8 @@ export default class PlayingState {
         this.scene = scene; // Store reference to GameScene
         this.currentLevel = 0; // Start at Level 1 (Index 0)
         this.score = 0; // Reset score on full game restart
+        this.worldWidth = 800; // Original designed width
+        this.worldHeight = 600; // Original designed height
         this.reset();
     }
 
@@ -58,26 +63,37 @@ export default class PlayingState {
 
     update(dt, input, canvas) {
         if (this.lives <= 0 || this.victory) {
+            // Give 1 second to see the result before switching automatically
+            if (!this.transitionTimer) this.transitionTimer = 1.0;
+            this.transitionTimer -= dt;
+
+            if (this.transitionTimer <= 0) {
+                if (this.lives <= 0) {
+                    this.scene.switchState(new GameOverState(this.scene, this.score));
+                    return;
+                }
+
+                if (this.victory) {
+                    if (this.currentLevel < Levels.length - 1) {
+                        // Level cleared, wait for input to next level
+                        if (input.isDown("Enter") || input.isDown("Space")) {
+                            this.currentLevel++;
+                            this.reset();
+                        }
+                    } else {
+                        // Game Won! Save score and go to leaderboard
+                        ScoreManager.addScore("Player", this.score);
+                        this.scene.switchState(new LeaderboardState(this.scene, this.score));
+                        return;
+                    }
+                }
+            }
 
             if (input.isDown("KeyR")) {
-                if (this.victory && this.currentLevel >= Levels.length - 1) {
-                    this.currentLevel = 0;
-                }
                 this.reset();
             }
 
-            if (this.victory && (input.isDown("Enter") || input.isDown("Space"))) {
-                if (this.currentLevel < Levels.length - 1) {
-                    this.currentLevel++;
-                    this.reset();
-                } else {
-                    this.scene.switchState(new MenuState(this.scene));
-                }
-            }
-
-
             if (input.isDown("Escape")) {
-
                 this.scene.switchState(new MenuState(this.scene));
             }
             return;
@@ -155,9 +171,9 @@ export default class PlayingState {
         }
 
         if (this.player.x < 0) this.player.x = 0;
-        if (this.player.x + this.player.w > canvas.width) this.player.x = canvas.width - this.player.w;
+        if (this.player.x + this.player.w > this.worldWidth) this.player.x = this.worldWidth - this.player.w;
 
-        if (this.player.y > canvas.height) {
+        if (this.player.y > this.worldHeight + 50) {
             this.takeDamage();
             this.player.x = this.levelData.playerStart.x;
             this.player.y = this.levelData.playerStart.y;
@@ -279,13 +295,15 @@ export default class PlayingState {
     takeDamage() {
         this.lives--;
         this.invincibilityTimer = 1.5;
+        if (this.lives < 0) this.lives = 0;
     }
 
     addScore(points) {
         this.score += points;
-        if (this.score > this.highScore) {
-            this.highScore = this.score;
-            localStorage.setItem("highScore", this.highScore);
+        // Keep compat with legacy highScore display in HUD
+        const hi = parseInt(localStorage.getItem("highScore")) || 0;
+        if (this.score > hi) {
+            localStorage.setItem("highScore", this.score);
         }
     }
 
@@ -296,11 +314,18 @@ export default class PlayingState {
         const time = Date.now() / 1000;
         drawBackground(ctx, width, height, time, "game");
 
+        const offsetX = Math.max(0, (width - this.worldWidth) / 2);
+
+        // WORLD COORDINATES (Translated)
+        ctx.save();
+        ctx.translate(offsetX, 0);
+
         this.platforms.forEach(p => p.draw(ctx));
         this.enemy.draw(ctx);
         if (this.enemy.lives <= 0) {
             this.goal.draw(ctx);
         }
+
         this.balls.forEach(b => b.draw(ctx));
         this.playerProjectiles.forEach(p => p.draw(ctx));
         this.bonuses.forEach(b => b.draw(ctx));
@@ -308,6 +333,23 @@ export default class PlayingState {
         if (!(this.invincibilityTimer > 0 && Math.floor(Date.now() / 100) % 2 === 0)) {
             this.player.draw(ctx);
         }
+
+        // LADDERS
+        this.stairs.forEach(s => {
+            ctx.fillStyle = "#795548";
+            ctx.fillRect(s.x, s.y, 4, s.h);
+            ctx.fillRect(s.x + s.w - 4, s.y, 4, s.h);
+            ctx.fillStyle = "#A1887F";
+            for (let y = s.y + 10; y < s.y + s.h; y += 15) {
+                ctx.fillRect(s.x, y, s.w, 4);
+            }
+        });
+
+        ctx.restore();
+
+        // UI COORDINATES (Relative to centered world or screen)
+        ctx.save();
+        ctx.translate(offsetX, 0);
 
         // HUD: LIVES
         ctx.fillStyle = "#ffeb3b";
@@ -343,31 +385,22 @@ export default class PlayingState {
             }
         }
 
-        // LEVEL NAME
-        ctx.fillStyle = "#fff";
-        ctx.textAlign = "center";
-        ctx.font = "bold 24px monospace";
-        ctx.fillText(levelData.name || `LEVEL ${this.currentLevel + 1}`, width / 2, 35);
-
-        // LADDERS
-        this.stairs.forEach(s => {
-            ctx.fillStyle = "#795548";
-            ctx.fillRect(s.x, s.y, 4, s.h);
-            ctx.fillRect(s.x + s.w - 4, s.y, 4, s.h);
-            ctx.fillStyle = "#A1887F";
-            for (let y = s.y + 10; y < s.y + s.h; y += 15) {
-                ctx.fillRect(s.x, y, s.w, 4);
-            }
-        });
-
         // SCORE
         ctx.fillStyle = "#ffd700";
         ctx.textAlign = "right";
         ctx.font = "bold 20px monospace";
-        ctx.fillText(`SCORE: ${this.score}`, width - 20, 35);
+        ctx.fillText(`SCORE: ${this.score}`, this.worldWidth - 20, 35);
         ctx.fillStyle = "#fff";
         ctx.font = "16px monospace";
-        ctx.fillText(`HI: ${this.highScore}`, width - 20, 60);
+        ctx.fillText(`HI: ${this.highScore}`, this.worldWidth - 20, 60);
+
+        ctx.restore();
+
+        // LEVEL NAME (Screen Centered)
+        ctx.fillStyle = "#fff";
+        ctx.textAlign = "center";
+        ctx.font = "bold 24px monospace";
+        ctx.fillText(levelData.name || `LEVEL ${this.currentLevel + 1}`, width / 2, 35);
 
         if (this.victory) {
             ctx.fillStyle = "rgba(0,0,0,0.7)";

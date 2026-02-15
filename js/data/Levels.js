@@ -6,19 +6,20 @@ const Levels = [
         name: "Bikini Bottom Beach",
         playerStart: { x: 50, y: 470 }, // Increased height safety
         enemy: { x: 700, y: 50, lives: 3 },
-        goal: { x: 730, y: 50 },
+        goal: { x: 750, y: 150 },
         colors: {
             background: "#4fc3f7",
             platforms: "#F4D03F",
             text: "#fff"
         },
         platforms: [
-            { x: 0, y: 550, w: 800, h: 50, type: 0 }, // Ground
-            { x: 100, y: 450, w: 600, h: 30, type: 0 },
-            { x: 0, y: 350, w: 250, h: 30, type: 0 },
-            { x: 550, y: 350, w: 250, h: 30, type: 0 },
-            { x: 200, y: 250, w: 400, h: 30, type: 0 },
-            { x: 0, y: 150, w: 800, h: 30, type: 0 }
+            { x: 0, y: 550, w: 300, h: 50, type: 0 }, // Left Ground
+            { x: 500, y: 550, w: 300, h: 50, type: 0 }, // Right Ground
+            { x: 100, y: 450, w: 600, h: 50, type: 0 },
+            { x: 0, y: 350, w: 250, h: 50, type: 0 },
+            { x: 550, y: 350, w: 250, h: 50, type: 0 },
+            { x: 200, y: 250, w: 400, h: 50, type: 0 },
+            { x: 0, y: 150, w: 800, h: 50, type: 0 }
         ],
         stairs: [
             { x: 120, y: 440, w: 40, h: 120 }, // Conect L1 to Ground
@@ -31,21 +32,22 @@ const Levels = [
     {
         name: "The Kelp Forest",
         playerStart: { x: 50, y: 500 }, // Safe starting gap
-        enemy: { x: 400, y: 50, lives: 5 },
-        goal: { x: 700, y: 80 },
+        enemy: { x: 700, y: 50, lives: 5 },
+        goal: { x: 50, y: 80 },
         colors: {
             background: "#1B5E20", // Deep Forest Green
             platforms: "#8E44AD", // Rocky Reef
             text: "#C8E6C9"
         },
         platforms: [
-            { x: 0, y: 580, w: 800, h: 30, type: 1 }, // Ground
-            { x: 50, y: 480, w: 200, h: 30, type: 1 },
-            { x: 350, y: 430, w: 200, h: 30, type: 1 },
-            { x: 500, y: 330, w: 250, h: 30, type: 1 },
-            { x: 150, y: 300, w: 250, h: 30, type: 1 },
-            { x: 50, y: 200, w: 700, h: 30, type: 1 },
-            { x: 300, y: 100, w: 400, h: 30, type: 1 }
+            { x: 0, y: 580, w: 250, h: 50, type: 1 }, // Left Ground
+            { x: 550, y: 580, w: 250, h: 50, type: 1 }, // Right Ground
+            { x: 50, y: 480, w: 200, h: 50, type: 1 },
+            { x: 350, y: 430, w: 200, h: 50, type: 1 },
+            { x: 500, y: 330, w: 250, h: 50, type: 1 },
+            { x: 150, y: 300, w: 250, h: 50, type: 1 },
+            { x: 50, y: 200, w: 700, h: 50, type: 1 },
+            { x: 300, y: 100, w: 400, h: 50, type: 1 }
         ],
         stairs: [
             { x: 100, y: 470, w: 30, h: 120 },
@@ -68,16 +70,16 @@ const Levels = [
             text: "#FF5252"
         },
         platforms: [
-            { x: 0, y: 580, w: 800, h: 30, type: 1 }, // Ground
+            { x: 300, y: 580, w: 200, h: 50, type: 2 }, // Industrial ground
             // Symmetric but difficult ascent
-            { x: 100, y: 480, w: 100, h: 30, type: 1 },
-            { x: 600, y: 480, w: 100, h: 30, type: 1 },
-            { x: 300, y: 380, w: 200, h: 30, type: 1 },
-            { x: 0, y: 280, w: 250, h: 30, type: 1 },
-            { x: 550, y: 280, w: 250, h: 30, type: 1 },
-            { x: 200, y: 180, w: 400, h: 30, type: 1 },
-            { x: 0, y: 100, w: 200, h: 30, type: 1 }, // Goal side
-            { x: 600, y: 100, w: 200, h: 30, type: 1 }
+            { x: 100, y: 480, w: 100, h: 50, type: 2 },
+            { x: 600, y: 480, w: 100, h: 50, type: 2 },
+            { x: 300, y: 380, w: 200, h: 50, type: 2 },
+            { x: 0, y: 280, w: 250, h: 50, type: 2 },
+            { x: 550, y: 280, w: 250, h: 50, type: 2 },
+            { x: 200, y: 180, w: 400, h: 50, type: 2 },
+            { x: 0, y: 100, w: 200, h: 50, type: 2 }, // Goal side
+            { x: 600, y: 100, w: 200, h: 50, type: 2 }
         ],
         stairs: [
             { x: 150, y: 470, w: 20, h: 120 },
