@@ -1,5 +1,6 @@
 import Player from "../entities/Player.js";
 import Enemy from "../entities/Enemy.js";
+import GuardEnemy from "../entities/GuardEnemy.js";
 import Platform from "../entities/Platform.js";
 import { aabb } from "../utils/Collision.js";
 import Ball from "../entities/Ball.js";
@@ -13,6 +14,7 @@ import GameOverState from "./GameOverState.js";
 import LeaderboardState from "./LeaderboardState.js";
 import { ScoreManager } from "../utils/ScoreManager.js";
 import { drawBackground } from "../utils/Theme.js";
+import AudioManager from "../utils/AudioManager.js";
 
 export default class PlayingState {
     constructor(scene) {
@@ -43,6 +45,7 @@ export default class PlayingState {
         this.maxLives = 5;
         this.balls = [];
         this.playerProjectiles = [];
+        this.guardEnemies = (levelData.guardEnemies || []).map(g => new GuardEnemy(g.x, g.y, g.range, g.speed));
         this.bonuses = [];
         this.invincibilityTimer = 0;
         this.freezeTimer = 0;
@@ -83,6 +86,11 @@ export default class PlayingState {
                     } else {
                         // Game Won! Save score and go to leaderboard
                         ScoreManager.addScore("Player", this.score);
+
+                        // Play Win Music
+                        AudioManager.stopMusic();
+                        AudioManager.playSound("win");
+
                         this.scene.switchState(new LeaderboardState(this.scene, this.score));
                         return;
                     }
@@ -223,6 +231,7 @@ export default class PlayingState {
         }
 
         this.balls.forEach(b => b.update(dt, this.player, this.stairs, this.platforms, this.freezeTimer > 0));
+        this.guardEnemies.forEach(g => g.update(dt, this.platforms));
         this.playerProjectiles.forEach(p => p.update(dt));
         this.bonuses.forEach(b => b.update(dt));
 
@@ -232,6 +241,25 @@ export default class PlayingState {
 
         if (this.enemy.lives > 0 && aabb(this.player.getRect(), this.enemy.getRect())) {
             this.lives = 0;
+        }
+
+        // Guard Collision (Half-life or Stomp)
+        if (this.invincibilityTimer <= 0) {
+            for (let i = this.guardEnemies.length - 1; i >= 0; i--) {
+                const g = this.guardEnemies[i];
+                if (aabb(this.player.getRect(), g.getRect())) {
+                    // STOMP CHECK: Falling and player feet above enemy center
+                    if (this.player.vy > 0 && this.player.y + this.player.h < g.y + g.h / 2) {
+                        this.guardEnemies.splice(i, 1);
+                        this.player.vy = -400; // Bounce
+                        this.player.jumpCount = 1; // Allow second jump after bounce
+                        this.addScore(200);
+                    } else {
+                        this.takeDamage(0.5); // Regular hit
+                        break;
+                    }
+                }
+            }
         }
 
         for (let i = this.bonuses.length - 1; i >= 0; i--) {
@@ -265,7 +293,7 @@ export default class PlayingState {
         } else {
             for (const b of this.balls) {
                 if (aabb(this.player.getRect(), b.getRect())) {
-                    this.takeDamage();
+                    this.takeDamage(1); // Full heart for jellyfish
                     this.balls = this.balls.filter(ball => ball !== b);
                     break;
                 }
@@ -292,8 +320,8 @@ export default class PlayingState {
         this.bonuses.push(new Bonus(bx, by, randomType));
     }
 
-    takeDamage() {
-        this.lives--;
+    takeDamage(amount = 1) {
+        this.lives -= amount;
         this.invincibilityTimer = 1.5;
         if (this.lives < 0) this.lives = 0;
     }
@@ -327,6 +355,7 @@ export default class PlayingState {
         }
 
         this.balls.forEach(b => b.draw(ctx));
+        this.guardEnemies.forEach(g => g.draw(ctx));
         this.playerProjectiles.forEach(p => p.draw(ctx));
         this.bonuses.forEach(b => b.draw(ctx));
 
@@ -360,16 +389,28 @@ export default class PlayingState {
         ctx.fillText("LIVES", 20, 35);
 
         ctx.shadowBlur = 0;
-        for (let i = 0; i < this.lives; i++) {
-            // Heart icon
-            ctx.fillStyle = "#f44336";
+        for (let i = 0; i < this.maxLives; i++) {
             const hx = 90 + i * 25;
             const hy = 25;
-            ctx.beginPath();
-            ctx.moveTo(hx, hy + 5);
-            ctx.bezierCurveTo(hx - 10, hy - 5, hx - 15, hy + 5, hx, hy + 15);
-            ctx.bezierCurveTo(hx + 15, hy + 5, hx + 10, hy - 5, hx, hy + 5);
-            ctx.fill();
+
+            // Background / Empty heart
+            ctx.fillStyle = "rgba(0,0,0,0.3)";
+            this.drawHeart(ctx, hx, hy);
+
+            // Full or Half heart
+            const remaining = this.lives - i;
+            if (remaining > 0) {
+                ctx.save();
+                ctx.fillStyle = "#f44336";
+                if (remaining < 1) {
+                    // Half heart: Clip to left half
+                    ctx.beginPath();
+                    ctx.rect(hx - 15, hy - 5, 15, 25);
+                    ctx.clip();
+                }
+                this.drawHeart(ctx, hx, hy);
+                ctx.restore();
+            }
         }
 
         // HUD: AMMO
@@ -435,5 +476,13 @@ export default class PlayingState {
             ctx.fillStyle = "#fff";
             ctx.fillText("Press R to Restart", width / 2, height / 2 + 60);
         }
+    }
+
+    drawHeart(ctx, x, y) {
+        ctx.beginPath();
+        ctx.moveTo(x, y + 5);
+        ctx.bezierCurveTo(x - 10, y - 5, x - 15, y + 5, x, y + 15);
+        ctx.bezierCurveTo(x + 15, y + 5, x + 10, y - 5, x, y + 5);
+        ctx.fill();
     }
 }

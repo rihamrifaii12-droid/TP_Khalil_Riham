@@ -26,6 +26,10 @@ const Levels = [
             { x: 600, y: 340, w: 40, h: 120 }, // Connect L2 to L1
             { x: 120, y: 240, w: 40, h: 120 }, // Connect L3 to L2
             { x: 640, y: 140, w: 40, h: 120 }  // Connect L4 to L3
+        ],
+        guardEnemies: [
+            { x: 200, y: 410, range: 100, speed: 80 }, // On L1
+            { x: 400, y: 210, range: 150, speed: 100 } // On L2
         ]
     },
     // LEVEL 2: THE KELP FOREST (Intermediate)
@@ -56,6 +60,11 @@ const Levels = [
             { x: 200, y: 290, w: 30, h: 150 },
             { x: 100, y: 190, w: 30, h: 120 },
             { x: 400, y: 90, w: 30, h: 120 }
+        ],
+        guardEnemies: [
+            { x: 400, y: 390, range: 100, speed: 120 },
+            { x: 200, y: 260, range: 80, speed: 90 },
+            { x: 500, y: 60, range: 0, speed: 100 } // This one will fall!
         ]
     },
     // LEVEL 3: PLANKTON'S LAIR (Hard)
@@ -90,6 +99,11 @@ const Levels = [
             { x: 300, y: 170, w: 20, h: 120 },
             { x: 500, y: 170, w: 20, h: 120 },
             { x: 100, y: 90, w: 20, h: 100 }
+        ],
+        guardEnemies: [
+            { x: 350, y: 340, range: 50, speed: 150 },
+            { x: 50, y: 240, range: 100, speed: 130 },
+            { x: 650, y: 240, range: 100, speed: 130 }
         ]
     }
 ];

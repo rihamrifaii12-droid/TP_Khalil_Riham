@@ -6,6 +6,15 @@ export default class GameOverState {
         this.scene = scene;
         this.finalScore = finalScore;
         this.pulse = 0;
+
+        // Use AudioManager for Lose Sound with Resume logic
+        import("../utils/AudioManager.js").then(module => {
+            const AudioManager = module.default;
+            AudioManager.pauseMusic();
+            AudioManager.playSound("Lose", () => {
+                AudioManager.resumeMusic();
+            });
+        });
     }
 
     update(dt, input, canvas) {

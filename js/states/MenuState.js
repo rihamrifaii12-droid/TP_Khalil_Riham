@@ -1,5 +1,6 @@
 import PlayingState from "./PlayingState.js";
 import LeaderboardState from "./LeaderboardState.js";
+import AudioManager from "../utils/AudioManager.js";
 
 import { drawBackground, toggleTheme } from "../utils/Theme.js";
 
@@ -12,6 +13,11 @@ export default class MenuState {
     }
 
     update(dt, input, canvas) {
+        // Start playlist on first interaction
+        if (input.isDown("Enter") || input.isDown("Space") || input.isDown("KeyT") || input.isDown("KeyH")) {
+            AudioManager.startPlaylist();
+        }
+
         this.pulse += dt * 5;
         if (this.toggleCooldown > 0) this.toggleCooldown -= dt;
 
@@ -28,6 +34,7 @@ export default class MenuState {
 
         // Transition to Game
         if (input.isDown("Enter") || input.isDown("Space")) {
+            AudioManager.startPlaylist();
             this.scene.switchState(new PlayingState(this.scene));
         }
     }
