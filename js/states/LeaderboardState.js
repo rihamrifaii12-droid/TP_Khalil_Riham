@@ -22,13 +22,11 @@ export default class LeaderboardState {
         const { width, height } = ctx.canvas;
         drawBackground(ctx, width, height, this.pulse, "menu");
 
-        // Overlay
         ctx.fillStyle = "rgba(0,0,0,0.7)";
         ctx.fillRect(0, 0, width, height);
 
         ctx.textAlign = "center";
 
-        // Title
         ctx.font = "bold 50px 'Arial Black'";
         ctx.fillStyle = "#FFEB3B";
         ctx.shadowBlur = 10;
@@ -36,7 +34,6 @@ export default class LeaderboardState {
         ctx.fillText("TOP 10 SCORES", width / 2, 70);
         ctx.shadowBlur = 0;
 
-        // Table Header
         ctx.font = "bold 24px monospace";
         ctx.fillStyle = "#4FC3F7";
         ctx.textAlign = "left";
@@ -45,7 +42,6 @@ export default class LeaderboardState {
         ctx.fillText("NAME", startX + 100, 130);
         ctx.fillText("SCORE", startX + 300, 130);
 
-        // Divider
         ctx.strokeStyle = "#FFF";
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -53,12 +49,10 @@ export default class LeaderboardState {
         ctx.lineTo(startX + 400, 140);
         ctx.stroke();
 
-        // Scores
         ctx.font = "20px monospace";
         this.scores.forEach((s, i) => {
             const y = 175 + i * 35;
 
-            // Highlight player's recent score if it matches (very rough check)
             if (this.recentScore === s.score) {
                 ctx.fillStyle = "rgba(255, 235, 59, 0.3)";
                 ctx.fillRect(startX - 10, y - 20, 420, 30);
@@ -74,7 +68,6 @@ export default class LeaderboardState {
             ctx.textAlign = "left";
         });
 
-        // Prompt
         ctx.textAlign = "center";
         ctx.fillStyle = "#FFF";
         ctx.font = "18px monospace";

@@ -2,7 +2,7 @@ export default class Goal {
     constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.w = 180; // Larger size for maison.png
+        this.w = 180;
         this.h = 180;
         this.pulse = 0;
         this.image = new Image();
@@ -15,7 +15,6 @@ export default class Goal {
 
     draw(ctx) {
         ctx.save();
-        // Adjust anchor point so it sits on the platform (y - h)
         const centerX = this.x + this.w / 2;
         const bottomY = this.y;
 
@@ -24,10 +23,8 @@ export default class Goal {
         ctx.scale(scale, scale);
 
         if (this.image.complete && this.image.naturalWidth !== 0) {
-            // Draw from bottom-center
             ctx.drawImage(this.image, -this.w / 2, -this.h, this.w, this.h);
         } else {
-            // Fallback: Pineapple-like shape if image fails
             ctx.fillStyle = "#FF9800";
             ctx.beginPath();
             ctx.ellipse(0, -this.h / 2, this.w / 3, this.h / 2, 0, 0, Math.PI * 2);

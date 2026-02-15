@@ -6,7 +6,7 @@ class AudioManager {
         this.playlist = ["sponge1", "sponge2", "sponge3"];
         this.currentIndex = 0;
         this.isPlaylistPlaying = false;
-        this.maxDuration = 60; // Max 1 minute per track
+        this.maxDuration = 60;
     }
 
     startPlaylist() {
@@ -25,7 +25,6 @@ class AudioManager {
         this.playMusic(key, false);
 
         if (this.currentMusic) {
-            // Logic to move to next track if song ends OR reaches 1 minute
             this.currentMusic.onended = () => this.nextTrack();
 
             this.currentMusic.ontimeupdate = () => {
@@ -53,7 +52,6 @@ class AudioManager {
         this.musicKey = key;
 
         this.currentMusic.play().catch(e => {
-            console.log(`Audio play for ${key} deferred:`, e);
             const retry = () => {
                 if (this.currentMusic) this.currentMusic.play();
                 window.removeEventListener("click", retry);

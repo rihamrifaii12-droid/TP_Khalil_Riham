@@ -4,7 +4,7 @@ import MenuState from "../states/MenuState.js";
 export default class GameScene {
     constructor(game) {
         this.game = game;
-        this.state = new MenuState(this); // Start with Menu
+        this.state = new MenuState(this);
     }
 
     switchState(newState) {

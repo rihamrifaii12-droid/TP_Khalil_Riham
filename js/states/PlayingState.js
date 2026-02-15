@@ -7,7 +7,6 @@ import Ball from "../entities/Ball.js";
 import Trait from "../entities/Trait.js";
 import Goal from "../entities/Goal.js";
 import Bonus, { BonusType } from "../entities/Bonus.js";
-
 import Levels from "../data/Levels.js";
 import MenuState from "./MenuState.js";
 import LeaderboardState from "./LeaderboardState.js";
@@ -17,22 +16,21 @@ import AudioManager from "../utils/AudioManager.js";
 
 export default class PlayingState {
     constructor(scene) {
-        this.scene = scene; // Store reference to GameScene
-        this.currentLevel = 0; // Start at Level 1 (Index 0)
-        this.score = 0; // Reset score on full game restart
-        this.worldWidth = 800; // Original designed width
-        this.worldHeight = 600; // Original designed height
+        this.scene = scene;
+        this.currentLevel = 0;
+        this.score = 0;
+        this.worldWidth = 800;
+        this.worldHeight = 600;
         this.reset();
     }
 
     reset() {
-        // Ensure currentLevel doesn't exceed available levels
         if (this.currentLevel >= Levels.length) {
             this.currentLevel = 0;
         }
 
         const levelData = Levels[this.currentLevel];
-        this.levelData = levelData; // Store for easy access
+        this.levelData = levelData;
 
         this.player = new Player(levelData.playerStart.x, levelData.playerStart.y, "yellow");
         this.enemy = new Enemy(levelData.enemy.x, levelData.enemy.y);
@@ -53,7 +51,7 @@ export default class PlayingState {
         this.victory = false;
         this.bossWasAlive = true;
 
-        this.score = this.score || 0; // Keep score between levels if not reset
+        this.score = this.score || 0;
         this.highScore = parseInt(localStorage.getItem("highScore")) || 0;
         this.levelStartTime = Date.now();
 
@@ -76,7 +74,6 @@ export default class PlayingState {
             }
 
             if (this.victory) {
-                // Give 1 second to see the result before showing victory options
                 if (!this.transitionTimer) this.transitionTimer = 1.0;
                 this.transitionTimer -= dt;
 
@@ -87,7 +84,6 @@ export default class PlayingState {
                             this.reset();
                         }
                     } else {
-                        // Game Won! Save score and go to leaderboard
                         ScoreManager.addScore("Player", this.score);
                         AudioManager.stopMusic();
                         AudioManager.playSound("win");
@@ -134,7 +130,6 @@ export default class PlayingState {
             this.player.x -= 350 * dt;
             this.player.direction = -1;
         }
-
 
         if (input.isDown("KeyF") || input.isDown("Enter")) {
             if (this.shootKeyReleased && this.player.ammo > 0) {
@@ -202,7 +197,6 @@ export default class PlayingState {
                 const plt = p.getRect();
                 const pr = this.player.getRect();
 
-                // LANDING (Top of platform)
                 if (this.player.vy >= 0 && (prevY + this.player.h) <= plt.y && aabb(pr, plt)) {
                     this.player.y = plt.y - this.player.h;
                     this.player.vy = 0;
@@ -210,8 +204,6 @@ export default class PlayingState {
                     this.player.jumpCount = 0;
                 }
 
-                // CEILING COLLISION (Bottom of platform)
-                // If player is moving up and hits head
                 if (this.player.vy < 0 && prevY >= (plt.y + plt.h) && aabb(pr, plt)) {
                     this.player.y = plt.y + plt.h;
                     this.player.vy = 0;
@@ -223,18 +215,15 @@ export default class PlayingState {
         this.goal.update(dt);
 
         if (this.enemy.lives <= 0 && this.bossWasAlive) {
-            this.balls = []; // Clear all red balls when boss dies
+            this.balls = [];
             this.bossWasAlive = false;
 
-            // Score for kill
             this.addScore(1000);
 
-            // Time Bonus
             const timeTaken = (Date.now() - this.levelStartTime) / 1000;
-            const timeBonus = Math.max(0, Math.floor((300 - timeTaken) * 10)); // 5 mins max logic
+            const timeBonus = Math.max(0, Math.floor((300 - timeTaken) * 10));
             this.addScore(timeBonus);
 
-            // Reposition Goal to Boss location
             this.goal.x = this.enemy.x + this.enemy.size / 2 - this.goal.w / 2;
             this.goal.y = this.enemy.y + this.enemy.size;
         }
@@ -252,19 +241,17 @@ export default class PlayingState {
             this.lives = 0;
         }
 
-        // Guard Collision (Half-life or Stomp)
         if (this.invincibilityTimer <= 0) {
             for (let i = this.guardEnemies.length - 1; i >= 0; i--) {
                 const g = this.guardEnemies[i];
                 if (aabb(this.player.getRect(), g.getRect())) {
-                    // STOMP CHECK: Falling and player feet above enemy center
                     if (this.player.vy > 0 && this.player.y + this.player.h < g.y + g.h / 2) {
                         this.guardEnemies.splice(i, 1);
-                        this.player.vy = -400; // Bounce
-                        this.player.jumpCount = 1; // Allow second jump after bounce
+                        this.player.vy = -400;
+                        this.player.jumpCount = 1;
                         this.addScore(200);
                     } else {
-                        this.takeDamage(0.5); // Regular hit
+                        this.takeDamage(0.5);
                         break;
                     }
                 }
@@ -291,7 +278,7 @@ export default class PlayingState {
                 if (aabb(proj.getRect(), this.balls[j].getRect())) {
                     this.playerProjectiles.splice(i, 1);
                     this.balls.splice(j, 1);
-                    this.addScore(50); // Score for ball
+                    this.addScore(50);
                     break;
                 }
             }
@@ -302,7 +289,7 @@ export default class PlayingState {
         } else {
             for (const b of this.balls) {
                 if (aabb(this.player.getRect(), b.getRect())) {
-                    this.takeDamage(1); // Full heart for jellyfish
+                    this.takeDamage(1);
                     this.balls = this.balls.filter(ball => ball !== b);
                     break;
                 }
@@ -337,7 +324,6 @@ export default class PlayingState {
 
     addScore(points) {
         this.score += points;
-        // Keep compat with legacy highScore display in HUD
         const hi = parseInt(localStorage.getItem("highScore")) || 0;
         if (this.score > hi) {
             localStorage.setItem("highScore", this.score);
@@ -353,7 +339,6 @@ export default class PlayingState {
 
         const offsetX = Math.max(0, (width - this.worldWidth) / 2);
 
-        // WORLD COORDINATES (Translated)
         ctx.save();
         ctx.translate(offsetX, 0);
 
@@ -372,7 +357,6 @@ export default class PlayingState {
             this.player.draw(ctx);
         }
 
-        // LADDERS
         this.stairs.forEach(s => {
             ctx.fillStyle = "#795548";
             ctx.fillRect(s.x, s.y, 4, s.h);
@@ -385,11 +369,9 @@ export default class PlayingState {
 
         ctx.restore();
 
-        // UI COORDINATES (Relative to centered world or screen)
         ctx.save();
         ctx.translate(offsetX, 0);
 
-        // HUD: LIVES
         ctx.fillStyle = "#ffeb3b";
         ctx.font = "bold 20px 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
         ctx.textAlign = "left";
@@ -402,17 +384,14 @@ export default class PlayingState {
             const hx = 90 + i * 25;
             const hy = 25;
 
-            // Background / Empty heart
             ctx.fillStyle = "rgba(0,0,0,0.3)";
             this.drawHeart(ctx, hx, hy);
 
-            // Full or Half heart
             const remaining = this.lives - i;
             if (remaining > 0) {
                 ctx.save();
                 ctx.fillStyle = "#f44336";
                 if (remaining < 1) {
-                    // Half heart: Clip to left half
                     ctx.beginPath();
                     ctx.rect(hx - 15, hy - 5, 15, 25);
                     ctx.clip();
@@ -422,11 +401,9 @@ export default class PlayingState {
             }
         }
 
-        // HUD: INGREDIENTS
         ctx.fillStyle = "#4FC3F7";
         ctx.fillText(`INGREDIENTS: ${this.player.ammo}`, 20, 65);
 
-        // HUD: BOSS
         if (this.enemy.lives > 0) {
             ctx.fillStyle = "#FF5252";
             ctx.fillText("PLANKTON:", 20, 95);
@@ -435,15 +412,6 @@ export default class PlayingState {
             }
         }
 
-        /*
-        // LEVEL NAME
-        ctx.fillStyle = "#fff";
-        ctx.textAlign = "center";
-        ctx.font = "bold 24px monospace";
-        ctx.fillText(levelData.name || `LEVEL ${this.currentLevel + 1}`, width / 2, 35);
-        */
-
-        // LADDERS
         this.stairs.forEach(s => {
             ctx.fillStyle = "#795548";
             ctx.fillRect(s.x, s.y, 4, s.h);
@@ -454,7 +422,6 @@ export default class PlayingState {
             }
         });
 
-        // SCORE
         ctx.fillStyle = "#ffd700";
         ctx.textAlign = "right";
         ctx.font = "bold 20px monospace";
@@ -465,7 +432,6 @@ export default class PlayingState {
 
         ctx.restore();
 
-        // LEVEL NAME (Screen Centered)
         ctx.fillStyle = "#fff";
         ctx.textAlign = "center";
         ctx.font = "bold 24px monospace";

@@ -26,6 +26,15 @@ Le développement de ce projet a suivi une approche itérative intégrant plusie
 2. **Squelette & Graphisme** : Nous avons d'abord conçu la structure technique (le squelette) du jeu, puis nous avons utilisé **Gemini** (Google) pour transformer ce socle en une version graphique aboutie.
 3. **Gestion de Conflits** : **ChatGPT** (OpenAI) a été sollicité pour nous aider à résoudre les conflits de code et les bugs complexes rencontrés durant l'intégration.
 4. **Documentation** : La première version du README a été rédigée manuellement avant d'être optimisée et mise en forme par **ClaudeAI** (Anthropic) pour un rendu plus professionnel.
+5. **Nettoyage final** : Suppression intégrale des commentaires pour un code source plus épuré.
+
+## 🧠 Challenges & Solutions (Squelette Technique)
+
+| Défi | Solution |
+| :--- | :--- |
+| **Gestion du Jeu** | Coordination du moteur pour assurer une expérience fluide entre les menus, le gameplay et le scoring. |
+| **Intelligence de Patrouille** | Algorithme permettant aux gardes de circuler sur les plateformes sans chuter, basé sur des calculs de bordures. |
+| **IA des Ennemis** | Conception des mécaniques d'attaque de Plankton et des méduses, réalisée à l'aide des supports de cours et de ressources YouTube. |
 
 ## ⌨️ Contrôles
 

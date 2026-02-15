@@ -5,28 +5,25 @@ export default class Platform {
         this.w = w;
         this.h = h;
         this.color = color;
-        this.type = type; // 0: Sandy, 1: Rocky, 2: Industrial
+        this.type = type;
     }
 
     draw(ctx) {
         ctx.save();
         ctx.imageSmoothingEnabled = true;
 
-        // Clip to platform area
         ctx.beginPath();
         ctx.rect(this.x, this.y, this.w, this.h);
         ctx.clip();
 
-        if (this.type === 0) { // --- BIKINI BOTTOM SAND (PREMIUM) ---
-            // 1. Base Sand Gradient
+        if (this.type === 0) {
             const grad = ctx.createLinearGradient(this.x, this.y, this.x, this.y + this.h);
-            grad.addColorStop(0, "#FFF9C4"); // Lighter top
+            grad.addColorStop(0, "#FFF9C4");
             grad.addColorStop(0.2, "#F9E79F");
-            grad.addColorStop(1, "#D4AC0D"); // Richer bottom
+            grad.addColorStop(1, "#D4AC0D");
             ctx.fillStyle = grad;
             ctx.fillRect(this.x, this.y, this.w, this.h);
 
-            // 2. Sand Ripples (Subtle Waves)
             ctx.strokeStyle = "rgba(183, 149, 11, 0.15)";
             ctx.lineWidth = 1;
             for (let j = 5; j < this.h; j += 15) {
@@ -38,9 +35,8 @@ export default class Platform {
                 ctx.stroke();
             }
 
-            // 3. Sand Grains (Noise)
             ctx.fillStyle = "rgba(125, 102, 8, 0.2)";
-            const seed = (this.x + this.y) % 1000; // Semi-static noise
+            const seed = (this.x + this.y) % 1000;
             for (let i = 0; i < this.w; i += 6) {
                 for (let j = 0; j < this.h; j += 6) {
                     const hash = Math.sin(seed + i * 0.1 + j * 0.7) * 10000;
@@ -50,7 +46,6 @@ export default class Platform {
                 }
             }
 
-            // 4. Detailed Seaweed
             for (let i = 10; i < this.w; i += 30) {
                 const height = 15 + Math.sin(i) * 5;
                 ctx.fillStyle = i % 2 === 0 ? "#229954" : "#27AE60";
@@ -61,17 +56,14 @@ export default class Platform {
                 ctx.fill();
             }
 
-            // 5. Sky Flowers (SpongeBob style)
             for (let i = 40; i < this.w; i += 100) {
                 this.drawSkyFlower(ctx, this.x + i, this.y + this.h / 2, 12, "rgba(255, 105, 180, 0.5)");
             }
 
-        } else if (this.type === 1) { // --- KELP FOREST ROCK (PREMIUM) ---
-            // 1. Rock Base
+        } else if (this.type === 1) {
             ctx.fillStyle = "#4A235A";
             ctx.fillRect(this.x, this.y, this.w, this.h);
 
-            // 2. Cracked Rock Detail
             ctx.strokeStyle = "rgba(0,0,0,0.3)";
             ctx.lineWidth = 1;
             for (let i = 0; i < this.w; i += 40) {
@@ -87,7 +79,6 @@ export default class Platform {
                 }
             }
 
-            // 3. Glowing Forest Moss
             ctx.fillStyle = "#1D8348";
             ctx.beginPath();
             ctx.moveTo(this.x, this.y);
@@ -98,7 +89,6 @@ export default class Platform {
             ctx.lineTo(this.x + this.w, this.y);
             ctx.fill();
 
-            // 4. Bioluminescent Spores
             ctx.shadowBlur = 8;
             ctx.shadowColor = "#58D68D";
             ctx.fillStyle = "#ABEBC6";
@@ -109,7 +99,6 @@ export default class Platform {
             }
             ctx.shadowBlur = 0;
 
-            // 5. Hanging Kelp Vines
             ctx.strokeStyle = "#145A32";
             ctx.lineWidth = 2;
             for (let i = 20; i < this.w; i += 60) {
@@ -119,8 +108,7 @@ export default class Platform {
                 ctx.stroke();
             }
 
-        } else { // --- INDUSTRIAL LAIR (PREMIUM) ---
-            // 1. Brushed Metal Background
+        } else {
             const grad = ctx.createLinearGradient(this.x, this.y, this.x + this.w, this.y + this.h);
             grad.addColorStop(0, "#2C3E50");
             grad.addColorStop(0.5, "#95A5A6");
@@ -128,7 +116,6 @@ export default class Platform {
             ctx.fillStyle = grad;
             ctx.fillRect(this.x, this.y, this.w, this.h);
 
-            // 2. High-Contrast Metal Reflection
             ctx.fillStyle = "rgba(255,255,255,0.15)";
             ctx.beginPath();
             ctx.moveTo(this.x + this.w * 0.2, this.y);
@@ -137,15 +124,11 @@ export default class Platform {
             ctx.lineTo(this.x - this.w * 0.1, this.y + this.h);
             ctx.fill();
 
-            // 3. Bolts and Rivets with Depth
             for (let i = 10; i < this.w; i += 40) {
-                // Top Bolt
                 this.drawBolt(ctx, this.x + i, this.y + 8);
-                // Bottom Bolt
                 this.drawBolt(ctx, this.x + i, this.y + this.h - 8);
             }
 
-            // 4. Hazard Stripes with Dirt/Scratches
             ctx.fillStyle = "#F1C40F";
             for (let i = -20; i < this.w; i += 40) {
                 ctx.beginPath();
@@ -155,7 +138,6 @@ export default class Platform {
                 ctx.lineTo(this.x + i - 20, this.y + 12);
                 ctx.fill();
             }
-            // Scratches
             ctx.strokeStyle = "rgba(0,0,0,0.4)";
             ctx.lineWidth = 1;
             for (let i = 0; i < this.w; i += 25) {
@@ -165,7 +147,6 @@ export default class Platform {
                 ctx.stroke();
             }
 
-            // 5. Red Alert Glow at edges
             ctx.fillStyle = "rgba(231, 76, 60, 0.4)";
             if (Math.floor(Date.now() / 500) % 2 === 0) {
                 ctx.fillRect(this.x, this.y, 4, this.h);
@@ -173,7 +154,6 @@ export default class Platform {
             }
         }
 
-        // Final Edge Polish (Inner Glow effect)
         ctx.strokeStyle = "rgba(255,255,255,0.2)";
         ctx.lineWidth = 2;
         ctx.strokeRect(this.x + 1, this.y + 1, this.w - 2, this.h - 2);
@@ -193,7 +173,6 @@ export default class Platform {
             ctx.ellipse(radius, 0, radius, radius * 0.6, 0, 0, Math.PI * 2);
             ctx.fill();
         }
-        // Flower Center
         ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
         ctx.beginPath();
         ctx.arc(0, 0, radius * 0.4, 0, Math.PI * 2);
@@ -203,17 +182,14 @@ export default class Platform {
 
     drawBolt(ctx, x, y) {
         ctx.save();
-        // Shadow
         ctx.fillStyle = "rgba(0,0,0,0.5)";
         ctx.beginPath();
         ctx.arc(x + 1, y + 1, 4, 0, Math.PI * 2);
         ctx.fill();
-        // Metal
         ctx.fillStyle = "#BDC3C7";
         ctx.beginPath();
         ctx.arc(x, y, 4, 0, Math.PI * 2);
         ctx.fill();
-        // Highlight
         ctx.fillStyle = "#FFF";
         ctx.beginPath();
         ctx.arc(x - 1, y - 1, 1, 0, Math.PI * 2);

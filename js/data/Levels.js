@@ -1,7 +1,6 @@
 import { BonusType } from "../entities/Bonus.js";
 
 const Levels = [
-    // LEVEL 1: BIKINI BOTTOM BEACH (Beginner)
     {
         name: "Bikini Bottom Beach",
 
@@ -42,7 +41,6 @@ const Levels = [
         ]
     },
 
-    // LEVEL 2: THE KELP FOREST (Intermediate)
     {
         name: "The Kelp Forest",
 
@@ -83,7 +81,6 @@ const Levels = [
         ]
     },
 
-    // LEVEL 3: PLANKTON'S LAIR (Hard)
     {
         name: "Plankton's Lair",
 

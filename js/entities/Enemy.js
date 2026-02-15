@@ -6,11 +6,11 @@ export default class Enemy {
         this.y = y;
         this.size = 100;
         this.baseColor = color;
-        this.freezeColor = "#00f"; // Blue when frozen
+        this.freezeColor = "#00f";
         this.isFrozen = false;
         this.lives = 3;
         this.throwTimer = 0;
-        this.throwInterval = 8.0; // Every 8 seconds as requested
+        this.throwInterval = 8.0;
     }
 
     update(dt, balls) {
@@ -27,16 +27,6 @@ export default class Enemy {
         const startX = this.x + this.size / 2;
         const startY = this.y + this.size;
 
-        // Rage mode: 3 balls if 1 life left
-        if (this.lives === 1) {
-            // Straight down
-            balls.push(new Ball(startX, startY, 150));
-            // Slightly left/right simulated by offset
-            balls.push(new Ball(startX - 40, startY, 150));
-            balls.push(new Ball(startX + 40, startY, 150));
-        } else {
-            balls.push(new Ball(startX, startY, 150));
-        }
     }
 
     draw(ctx) {
@@ -48,13 +38,11 @@ export default class Enemy {
         const hover = Math.sin(time) * 5;
         ctx.translate(0, hover);
 
-        // Body (Dark Green)
         ctx.fillStyle = this.isFrozen ? this.freezeColor : "#1D8348";
         ctx.beginPath();
         ctx.roundRect(-20, -30, 40, 60, 15);
         ctx.fill();
 
-        // Antennae
         ctx.strokeStyle = this.isFrozen ? this.freezeColor : "#1D8348";
         ctx.lineWidth = 3;
         ctx.beginPath();
@@ -62,13 +50,11 @@ export default class Enemy {
         ctx.moveTo(10, -30); ctx.lineTo(20, -50);
         ctx.stroke();
 
-        // Eye (White)
         ctx.fillStyle = "#fff";
         ctx.beginPath();
         ctx.arc(0, -10, 15, 0, Math.PI * 2);
         ctx.fill();
 
-        // Pupil (Red/Yellow)
         ctx.fillStyle = "#f00";
         ctx.beginPath();
         const pupilX = Math.sin(time) * 3;
@@ -77,7 +63,6 @@ export default class Enemy {
         ctx.fillStyle = "#ff0";
         ctx.fillRect(pupilX - 2, -12, 4, 4);
 
-        // Evil Mouth
         ctx.strokeStyle = "#000";
         ctx.lineWidth = 2;
         ctx.beginPath();

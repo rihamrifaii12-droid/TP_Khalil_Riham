@@ -7,7 +7,7 @@ export default class GuardEnemy {
         this.w = 40;
         this.h = 40;
         this.speed = speed;
-        this.direction = 1; // 1: Right, -1: Left
+        this.direction = 1;
         this.startX = x;
         this.range = range;
         this.vy = 0;
@@ -18,18 +18,14 @@ export default class GuardEnemy {
     update(dt, platforms) {
         const nextX = this.x + this.speed * this.direction * dt;
 
-        // Basic Edge/Range Detection
         if (this.range > 0) {
             if (Math.abs(nextX - this.startX) > this.range) {
                 this.direction *= -1;
             }
         }
 
-        // --- SMART EDGE DETECTION ---
-        // Check if there is a platform beneath the next position
         if (this.onGround) {
             let platformBeneath = false;
-            // Check a bit ahead of the feet
             const checkX = this.direction > 0 ? nextX + this.w : nextX;
             const checkY = this.y + this.h + 5;
 
@@ -49,11 +45,9 @@ export default class GuardEnemy {
 
         this.x += this.speed * this.direction * dt;
 
-        // Apply Gravity
         this.vy += this.gravity * dt;
         this.y += this.vy * dt;
 
-        // Platform Collision
         this.onGround = false;
         for (const p of platforms) {
             const pr = p.getRect();
@@ -69,7 +63,6 @@ export default class GuardEnemy {
             }
         }
 
-        // Screen bounds
         if (this.x < 0 || this.x + this.w > 800) {
             this.direction *= -1;
         }
