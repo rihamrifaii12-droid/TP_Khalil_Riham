@@ -4,9 +4,9 @@ const Levels = [
     // LEVEL 1: BIKINI BOTTOM BEACH (Beginner)
     {
         name: "Bikini Bottom Beach",
-        playerStart: { x: 50, y: 470 }, // Increased height safety
-        enemy: { x: 700, y: 50, lives: 3 },
-        goal: { x: 730, y: 50 },
+        playerStart: { x: 400, y: 490 }, // Start centered on ground
+        enemy: { x: 350, y: 50, lives: 3 }, // Centered on L4 Bridge (x: 200-600) -> spans 350-450
+        goal: { x: 375, y: 70 }, // Centered on L4 Bridge
         colors: {
             background: "#4fc3f7",
             platforms: "#F4D03F",
@@ -14,25 +14,30 @@ const Levels = [
         },
         platforms: [
             { x: 0, y: 550, w: 800, h: 50, type: 0 }, // Ground
-            { x: 100, y: 450, w: 600, h: 30, type: 0 },
-            { x: 0, y: 350, w: 250, h: 30, type: 0 },
-            { x: 550, y: 350, w: 250, h: 30, type: 0 },
-            { x: 200, y: 250, w: 400, h: 30, type: 0 },
-            { x: 0, y: 150, w: 800, h: 30, type: 0 }
+            { x: 50, y: 450, w: 250, h: 30, type: 0 }, // L1 Left
+            { x: 500, y: 450, w: 250, h: 30, type: 0 }, // L1 Right
+            { x: 250, y: 350, w: 300, h: 30, type: 0 }, // L2 Center
+            { x: 50, y: 250, w: 250, h: 30, type: 0 }, // L3 Left
+            { x: 500, y: 250, w: 250, h: 30, type: 0 }, // L3 Right
+            { x: 200, y: 150, w: 400, h: 30, type: 0 }  // L4 Center/Bridge
         ],
         stairs: [
-            { x: 120, y: 440, w: 40, h: 120 }, // Conect L1 to Ground
-            { x: 600, y: 340, w: 40, h: 120 }, // Connect L2 to L1
-            { x: 120, y: 240, w: 40, h: 120 }, // Connect L3 to L2
-            { x: 640, y: 140, w: 40, h: 120 }  // Connect L4 to L3
+            { x: 100, y: 440, w: 30, h: 120 }, // Gnd to L1L
+            { x: 670, y: 440, w: 30, h: 120 }, // Gnd to L1R
+            { x: 260, y: 340, w: 30, h: 120 }, // L1L to L2C
+            { x: 510, y: 340, w: 30, h: 120 }, // L1R to L2C
+            { x: 260, y: 240, w: 30, h: 120 }, // L2C to L3L
+            { x: 510, y: 240, w: 30, h: 120 }, // L2C to L3R
+            { x: 210, y: 140, w: 30, h: 120 }, // L3L to Bridge (Safe End)
+            { x: 560, y: 140, w: 30, h: 120 }  // L3R to Bridge (Safe End)
         ]
     },
     // LEVEL 2: THE KELP FOREST (Intermediate)
     {
         name: "The Kelp Forest",
         playerStart: { x: 50, y: 500 }, // Safe starting gap
-        enemy: { x: 400, y: 50, lives: 5 },
-        goal: { x: 700, y: 80 },
+        enemy: { x: 550, y: 0, lives: 5 }, // On top of L6 (y=100, boss size=100)
+        goal: { x: 650, y: 20 }, // Goal on L6 (y=100 - goal size 80)
         colors: {
             background: "#1B5E20", // Deep Forest Green
             platforms: "#8E44AD", // Rocky Reef
@@ -60,34 +65,33 @@ const Levels = [
     {
         name: "Plankton's Lair",
         playerStart: { x: 390, y: 510 }, // Safe starting gap
-        enemy: { x: 400, y: 30, lives: 8 },
-        goal: { x: 50, y: 50 },
+        enemy: { x: 375, y: 80, lives: 8 }, // Shifted slightly for safer ladder landings (375-475)
+        goal: { x: 50, y: 20 }, // On top of L7 Goal platform (y=100, goal size 80)
         colors: {
             background: "#212121", // Dark Industrial
             platforms: "#546E7A", // Steel/Tiki
             text: "#FF5252"
         },
         platforms: [
-            { x: 0, y: 580, w: 800, h: 30, type: 1 }, // Ground
-            // Symmetric but difficult ascent
-            { x: 100, y: 480, w: 100, h: 30, type: 1 },
-            { x: 600, y: 480, w: 100, h: 30, type: 1 },
-            { x: 300, y: 380, w: 200, h: 30, type: 1 },
-            { x: 0, y: 280, w: 250, h: 30, type: 1 },
-            { x: 550, y: 280, w: 250, h: 30, type: 1 },
-            { x: 200, y: 180, w: 400, h: 30, type: 1 },
-            { x: 0, y: 100, w: 200, h: 30, type: 1 }, // Goal side
-            { x: 600, y: 100, w: 200, h: 30, type: 1 }
+            { x: 0, y: 580, w: 800, h: 30, type: 1 }, // P0: Ground
+            { x: 50, y: 480, w: 200, h: 30, type: 1 }, // P1: L1L
+            { x: 550, y: 480, w: 200, h: 30, type: 1 }, // P2: L1R
+            { x: 200, y: 380, w: 400, h: 30, type: 1 }, // P3: L2C
+            { x: 0, y: 280, w: 300, h: 30, type: 1 },   // P4: L3L
+            { x: 500, y: 280, w: 300, h: 30, type: 1 }, // P5: L3R
+            { x: 100, y: 180, w: 600, h: 30, type: 1 }, // P6: Bridge
+            { x: 0, y: 100, w: 200, h: 30, type: 1 },  // P7: GoalL
+            { x: 600, y: 100, w: 200, h: 30, type: 1 }  // P8: GoalR
         ],
         stairs: [
-            { x: 150, y: 470, w: 20, h: 120 },
-            { x: 650, y: 470, w: 20, h: 120 },
-            { x: 400, y: 370, w: 20, h: 220 }, // Long climb
-            { x: 100, y: 270, w: 20, h: 120 },
-            { x: 700, y: 270, w: 20, h: 120 },
-            { x: 300, y: 170, w: 20, h: 120 },
-            { x: 500, y: 170, w: 20, h: 120 },
-            { x: 100, y: 90, w: 20, h: 100 }
+            { x: 100, y: 470, w: 30, h: 120 }, // P0 to P1
+            { x: 670, y: 470, w: 30, h: 120 }, // P0 to P2
+            { x: 385, y: 370, w: 30, h: 220 }, // P0 to P3
+            { x: 250, y: 270, w: 30, h: 120 }, // P3 to P4
+            { x: 520, y: 270, w: 30, h: 120 }, // P3 to P5
+            { x: 150, y: 170, w: 30, h: 120 }, // P4 to P6
+            { x: 620, y: 170, w: 30, h: 120 }, // P5 to P6
+            { x: 100, y: 90, w: 30, h: 100 }   // P6 to P7
         ]
     }
 ];

@@ -43,13 +43,21 @@ export default class Bonus {
             ctx.bezierCurveTo(15, 5, 10, -5, 0, 5);
             ctx.fill();
         } else if (this.type === BonusType.AMMO) {
-            // Bubble shape
+            // Realistic Burger Bun shape
+            ctx.fillStyle = "#D7B16E";
             ctx.beginPath();
-            ctx.arc(0, 0, 8, 0, Math.PI * 2);
+            ctx.ellipse(0, 0, 12, 9, 0, 0, Math.PI * 2);
             ctx.fill();
-            ctx.strokeStyle = "#fff";
-            ctx.lineWidth = 2;
-            ctx.stroke();
+            // Shading
+            ctx.fillStyle = "rgba(0,0,0,0.1)";
+            ctx.beginPath(); ctx.ellipse(0, 2, 10, 6, 0, 0, Math.PI * 2); ctx.fill();
+            // Sesame Seeds
+            ctx.fillStyle = "#FFF9C4";
+            for (let i = 0; i < 5; i++) {
+                const sx = Math.sin(i * 3) * 6;
+                const sy = Math.cos(i * 2) * 4 - 2;
+                ctx.beginPath(); ctx.ellipse(sx, sy, 1, 2, Math.PI / 4, 0, Math.PI * 2); ctx.fill();
+            }
         } else if (this.type === BonusType.SCORE) {
             // Coin shape
             ctx.beginPath();

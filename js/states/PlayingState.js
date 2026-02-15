@@ -330,9 +330,9 @@ export default class PlayingState {
             ctx.fill();
         }
 
-        // HUD: AMMO
+        // HUD: INGREDIENTS
         ctx.fillStyle = "#4FC3F7";
-        ctx.fillText(`BUBBLES: ${this.player.ammo}`, 20, 65);
+        ctx.fillText(`INGREDIENTS: ${this.player.ammo}`, 20, 65);
 
         // HUD: BOSS
         if (this.enemy.lives > 0) {
@@ -343,11 +343,13 @@ export default class PlayingState {
             }
         }
 
+        /*
         // LEVEL NAME
         ctx.fillStyle = "#fff";
         ctx.textAlign = "center";
         ctx.font = "bold 24px monospace";
         ctx.fillText(levelData.name || `LEVEL ${this.currentLevel + 1}`, width / 2, 35);
+        */
 
         // LADDERS
         this.stairs.forEach(s => {
@@ -396,11 +398,15 @@ export default class PlayingState {
             ctx.fillStyle = "#F44336";
             ctx.font = "bold 60px 'Segoe UI'";
             ctx.textAlign = "center";
-            ctx.fillText("GAME OVER", width / 2, height / 2 - 20);
+            ctx.fillText("GAME OVER", width / 2, height / 2 - 40);
+
+            ctx.font = "bold 28px monospace";
+            ctx.fillStyle = "#FFB74D";
+            ctx.fillText("PLANKTON STOLE THE RECIPE!", width / 2, height / 2 + 20);
 
             ctx.font = "24px monospace";
             ctx.fillStyle = "#fff";
-            ctx.fillText("Press R to Restart", width / 2, height / 2 + 60);
+            ctx.fillText("Press R to Restart", width / 2, height / 2 + 80);
         }
     }
 }
