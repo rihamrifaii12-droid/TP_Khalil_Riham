@@ -9,11 +9,8 @@ export default class MenuState {
         this.bubbles = [];
         this.pulse = 0;
         this.toggleCooldown = 0;
-<<<<<<< HEAD
         this.logoIcon = new Image();
         this.logoIcon.src = "assets/images/logo_icon.png";
-=======
->>>>>>> 9e97e3fde198e490f189d1f8c1bbc454d5a96609
     }
 
     update(dt, input, canvas) {
@@ -62,7 +59,7 @@ export default class MenuState {
         ctx.strokeText("SQUAREPANTS EDITION", width / 2, titleY + 60);
         ctx.fillText("SQUAREPANTS EDITION", width / 2, titleY + 60);
 
-<<<<<<< HEAD
+
         // Logo Icon
         if (this.logoIcon.complete) {
             const iconSize = 120;
@@ -70,8 +67,6 @@ export default class MenuState {
         }
 
         // Instructions
-=======
->>>>>>> 9e97e3fde198e490f189d1f8c1bbc454d5a96609
         ctx.restore();
         ctx.fillStyle = "#fff";
         ctx.font = "bold 20px monospace";
