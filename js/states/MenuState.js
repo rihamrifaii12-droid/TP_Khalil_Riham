@@ -8,8 +8,8 @@ export default class MenuState {
         this.bubbles = [];
         this.pulse = 0;
         this.toggleCooldown = 0;
-
-
+        this.logoIcon = new Image();
+        this.logoIcon.src = "assets/images/logo_icon.png";
     }
 
     update(dt, input, canvas) {
@@ -54,6 +54,12 @@ export default class MenuState {
         ctx.lineWidth = 4;
         ctx.strokeText("SQUAREPANTS EDITION", width / 2, titleY + 60);
         ctx.fillText("SQUAREPANTS EDITION", width / 2, titleY + 60);
+
+        // Logo Icon
+        if (this.logoIcon.complete) {
+            const iconSize = 120;
+            ctx.drawImage(this.logoIcon, width / 2 - iconSize / 2, titleY - 200, iconSize, iconSize);
+        }
 
         // Instructions
         ctx.restore();
