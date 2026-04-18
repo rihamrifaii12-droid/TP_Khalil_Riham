@@ -23,15 +23,12 @@ export default class Player {
     draw(ctx) {
         if (this.image.complete && this.image.naturalWidth !== 0) {
             ctx.save();
-            // Translate to center of player to pivot for scale(flip)
             ctx.translate(this.x + this.w / 2, this.y + this.h / 2);
-            ctx.scale(this.direction, 1); // Flip horizontally if direction is -1
+            ctx.scale(this.direction, 1);
 
-            // Draw image centered at (0,0)
             ctx.drawImage(this.image, -this.w / 2, -this.h / 2, this.w, this.h);
             ctx.restore();
         } else {
-            // Fallback if image not loaded
             ctx.fillStyle = this.color;
             ctx.fillRect(this.x + 5, this.y, 10, 10);
             ctx.fillRect(this.x, this.y + 10, 20, 15);
@@ -41,14 +38,11 @@ export default class Player {
     }
 
     getRect() {
-        // Significantly improved collision for platforms:
-        // Hitbox is slightly narrower (40px) and centered.
-        // Height is 55px, and it's aligned with the BOTTOM of the 60px sprite.
         return {
             x: this.x + 10,
-            y: this.y + 5, // Starts 5px from top
+            y: this.y + 5,
             w: this.w - 20,
-            h: this.h - 5  // Ends exactly at this.y + 60 (visual bottom)
+            h: this.h - 5
         };
     }
 }
