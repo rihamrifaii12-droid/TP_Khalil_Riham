@@ -1,6 +1,6 @@
-# Save The Recive
+# Save The Recipe
 
-**Save The Recive** est un jeu de plateforme dynamique inspiré de l'univers de Bob l'éponge. Incarnez notre héros et empêchez Plankton de s'emparer de la célèbre recette secrète du Pâté de Crabe !
+**Save The Recipe** est un jeu de plateforme dynamique inspiré de l'univers de Bob l'éponge. Incarnez notre héros et empêchez Plankton de s'emparer de la célèbre recette secrète du Pâté de Crabe !
 
 ## 🎮 Présentation du Jeu
 
